@@ -1,0 +1,223 @@
+ctmc
+
+const T;
+const k;
+const double rMw ;
+const double mR = 1/600; // difficulty parameter
+const double lR = 1-1/600;
+
+const double hR = 0.36;
+const double hR1 = 0.15;
+const double hR2 = 0.25;
+const double hR3 = 0.10;
+const double hR4 = 0.14;
+
+const double nhR = 0.64;
+const double nhR1 = 0.85;
+const double nhR2 = 0.75;
+const double nhR3 = 0.90;
+const double nhR4 = 0.86;
+
+
+const double r = 1;
+const int HasherRes = 0;
+const int Mw = 0;
+const int Winner = 1;
+const int L = 0;
+const int L1 = 1;
+const int L2 = 2;
+const int L3 = 3;
+const int L4 = 4;
+const int L5 = 5;
+const int L6 = 6;
+const int L7 = 7;
+const int Mw1 = 0;
+const int Winner1 = 1;
+const int Mw2 = 0;
+const int Winner2 = 1;
+const int Mw3 = 0;
+const int Winner3 = 1;
+const int Mw4 = 0;
+const int Winner4 = 1;
+const int Mw5 = 0;
+const int Winner5 = 1;
+const int Mw6 = 0;
+const int Winner6 = 1;
+const int Mw7 = 0;
+const int Winner7 = 1;
+const int Lost = 2;
+const int Lost1 = 2;
+const int Lost2 = 2;
+const int Lost3 = 2;
+const int Lost4 = 2;
+const int Lost5 = 2;
+const int Lost6 = 2;
+const int Lost7 = 2;
+const int Add = 3;
+const int Add1 = 3;
+const int Add2 = 3;
+const int Add3 = 3;
+const int Add4 = 3;
+const int N = 100;
+const double rD = 4.45;
+const int nNodi = 5;
+const double rDelay = rD/nNodi;
+
+module HasherRes
+
+	HasherRes_STATE : [0..1] init 0;
+
+	[win] (HasherRes_STATE=HasherRes) -> mR : (HasherRes_STATE'=HasherRes);
+	[lose] (HasherRes_STATE=HasherRes) -> lR : (HasherRes_STATE'=HasherRes);
+
+endmodule
+
+module Mw
+
+	Mw_STATE : [0..3] init Mw;
+	b : block {m,0;genesis,0};
+	B : blockchain [{genesis,0;genesis,0}];
+	c : [0..N] init 0;
+	tmp : [0..3] init 0;
+	bagMw : list [];
+
+	[win] (Mw_STATE=Mw) -> hR : (Mw_STATE'=Winner);
+	[lose] (Mw_STATE=Mw) -> nhR : (Mw_STATE'=Lost);
+	[] (Mw_STATE=Winner)&(tmp=0)&(c=0) -> r : (tmp'=3)&(B'=B+b)&(c'=c+1);
+	[] (Mw_STATE=Winner)&(tmp=0)&(c!=0) -> r : (tmp'=1)&(c'=c+1);
+	[] (Mw_STATE=Winner)&(tmp=1) -> r : (tmp'=2)&(b'=B+c);
+	[] (Mw_STATE=Winner)&(tmp=2) -> r : (tmp'=3)&(B'=B+b);
+	[addBlock] (Mw_STATE=Winner)&(tmp=3) -> rMw: (Mw_STATE'=Mw)&(tmp'=0);
+	[addBlock] (Mw_STATE=Lost) -> rMw : (Mw_STATE'=Add)&(bagMw'=bagMw+bag);
+	[] (Mw_STATE=Add) -> r : (Mw_STATE'=Mw)&(B'=B+bagMw);
+endmodule
+
+module Mw1
+
+	Mw1_STATE : [0..3] init Mw1;
+	b1 : block {m1,0;genesis,0};
+	B1 : blockchain [{genesis,0;genesis,0}];
+	c1 : [0..N] init 0;
+	tmp1 : [0..3] init 0;
+	bagMw1 : list [];
+
+	[win] (Mw1_STATE=Mw1) -> hR1 : (Mw1_STATE'=Winner1);
+	[lose] (Mw1_STATE=Mw1) -> nhR1 : (Mw1_STATE'=Lost1);
+	[] (Mw1_STATE=Winner1)&(tmp1=0)&(c1=0) -> r : (tmp1'=3)&(B1'=B1+b1)&(c1'=c1+1);
+	[] (Mw1_STATE=Winner1)&(tmp1=0)&(c1!=0) -> r : (tmp1'=1)&(c1'=c1+1);
+	[] (Mw1_STATE=Winner1)&(tmp1=1) -> r : (tmp1'=2)&(b1'=B1+c1);
+	[] (Mw1_STATE=Winner1)&(tmp1=2) -> r : (tmp1'=3)&(B1'=B1+b1);
+	[addBlock1] (Mw1_STATE=Winner1)&(tmp1=3) -> rMw: (Mw1_STATE'=Mw1)&(tmp1'=0);
+	[addBlock1] (Mw1_STATE=Lost1) -> rMw : (Mw1_STATE'=Add1)&(bagMw1'=bagMw1+bag1);
+	[] (Mw1_STATE=Add1) -> r : (Mw1_STATE'=Mw1)&(B1'=B1+bagMw1);
+
+endmodule
+
+
+module Mw2
+
+	Mw2_STATE : [0..3] init Mw2;
+	b2 : block {m2,0;genesis,0};
+	B2 : blockchain [{genesis,0;genesis,0}];
+	c2 : [0..N] init 0;
+	tmp2 : [0..3] init 0;
+	bagMw2 : list [];
+
+	[win] (Mw2_STATE=Mw2) -> hR2 : (Mw2_STATE'=Winner2);
+	[lose] (Mw2_STATE=Mw2) -> nhR2 : (Mw2_STATE'=Lost2);
+	[] (Mw2_STATE=Winner2)&(tmp2=0)&(c2=0) -> r : (tmp2'=3)&(B2'=B2+b2)&(c2'=c2+1);
+	[] (Mw2_STATE=Winner2)&(tmp2=0)&(c2!=0) -> r : (tmp2'=1)&(c2'=c2+1);
+	[] (Mw2_STATE=Winner2)&(tmp2=1) -> r : (tmp2'=2)&(b2'=B2+c2);
+	[] (Mw2_STATE=Winner2)&(tmp2=2) -> r : (tmp2'=3)&(B2'=B2+b2);
+	[addBlock2] (Mw2_STATE=Winner2)&(tmp2=3) -> rMw: (Mw2_STATE'=Mw2)&(tmp2'=0);
+	[addBlock2] (Mw2_STATE=Lost2) -> rMw : (Mw2_STATE'=Add2)&(bagMw2'=bagMw2+bag2);
+	[] (Mw2_STATE=Add2) -> r : (Mw2_STATE'=Mw2)&(B2'=B2+bagMw2);
+
+endmodule
+
+module Mw3
+
+	Mw3_STATE : [0..3] init Mw3;
+	b3 : block {m3,0;genesis,0};
+	B3 : blockchain [{genesis,0;genesis,0}];
+	c3 : [0..N] init 0;
+	tmp3 : [0..3] init 0;
+	bagMw3 : list [];
+
+	[win] (Mw3_STATE=Mw3) -> hR3: (Mw3_STATE'=Winner3);
+	[lose] (Mw3_STATE=Mw3) -> nhR3 : (Mw3_STATE'=Lost3);
+	[] (Mw3_STATE=Winner3)&(tmp3=0)&(c3=0) -> r : (tmp3'=3)&(B3'=B3+b3)&(c3'=c3+1);
+	[] (Mw3_STATE=Winner3)&(tmp3=0)&(c3!=0) -> r : (tmp3'=1)&(c3'=c3+1);
+	[] (Mw3_STATE=Winner3)&(tmp3=1) -> r : (tmp3'=2)&(b3'=B3+c3);
+	[] (Mw3_STATE=Winner3)&(tmp3=2) -> r : (tmp3'=3)&(B3'=B3+b3);
+	[addBlock3] (Mw3_STATE=Winner3)&(tmp3=3) -> rMw: (Mw3_STATE'=Mw3)&(tmp3'=0);
+	[addBlock3] (Mw3_STATE=Lost3) -> rMw : (Mw3_STATE'=Add3)&(bagMw3'=bagMw3+bag3);
+	[] (Mw3_STATE=Add3) -> r : (Mw3_STATE'=Mw3)&(B3'=B3+bagMw3);
+
+endmodule
+
+module Mw4
+
+	Mw4_STATE : [0..3] init Mw4;
+	b4 : block {m4,0;genesis,0};
+	B4 : blockchain [{genesis,0;genesis,0}];
+	c4 : [0..N] init 0;
+	tmp4 : [0..3] init 0;
+	bagMw4 : list [];
+
+	[win] (Mw4_STATE=Mw4) -> hR4 : (Mw4_STATE'=Winner4);
+	[lose] (Mw4_STATE=Mw4) -> nhR4 : (Mw4_STATE'=Lost4);
+	[] (Mw4_STATE=Winner4)&(tmp4=0)&(c4=0) -> r : (tmp4'=3)&(B4'=B4+b4)&(c4'=c4+1);
+	[] (Mw4_STATE=Winner4)&(tmp4=0)&(c4!=0) -> r : (tmp4'=1)&(c4'=c4+1);
+	[] (Mw4_STATE=Winner4)&(tmp4=1) -> r : (tmp4'=2)&(b4'=B4+c4);
+	[] (Mw4_STATE=Winner4)&(tmp4=2) -> r : (tmp4'=3)&(B4'=B4+b4);
+	[addBlock4] (Mw4_STATE=Winner4)&(tmp4=3) -> rMw: (Mw4_STATE'=Mw4)&(tmp4'=0);
+	[addBlock4] (Mw4_STATE=Lost4) -> rMw : (Mw4_STATE'=Add4)&(bagMw4'=bagMw4+bag4);
+	[] (Mw4_STATE=Add4) -> r : (Mw4_STATE'=Mw4)&(B4'=B4+bagMw4);
+
+endmodule
+
+module Global
+
+	//Mw1_STATE : [0..1] init Mw1;
+	Global_STATE : [0..2] init 0;
+
+	bag : list [];
+	bag1 : list [];
+	bag2 : list [];
+	bag3 : list [];
+	bag4 : list [];
+	lenFork : [0..N] init 0;
+
+	[addBlock] (Mw_STATE=Winner & Mw1_STATE!=Winner1 & Mw2_STATE!=Winner2  & Mw3_STATE!=Winner3  & Mw4_STATE!=Winner4 )  -> r : (lenFork'=0)&(bag1'=bag1+b)&(bag2'=bag2+b)&(bag3'=bag3+b)&(bag4'=bag4+b);
+	[addBlock] (Mw_STATE=Winner & Mw1_STATE=Winner1) | (Mw_STATE=Winner & Mw2_STATE=Winner2) | (Mw_STATE=Winner & Mw3_STATE=Winner3)  | (Mw_STATE=Winner & Mw4_STATE=Winner4)   -> r : (lenFork'=lenFork+1)&(bag1'=bag1+b)&(bag2'=bag2+b)&(bag3'=bag3+b)&(bag4'=bag4+b);
+	[addBlock] (Mw_STATE=Lost) -> r : (Global_STATE'=0);
+	[addBlock1] (Mw1_STATE=Winner1 & Mw_STATE!=Winner & Mw2_STATE!=Winner2  & Mw3_STATE!=Winner3  & Mw4_STATE!=Winner4 )  -> r : (lenFork'=0)&(bag'=bag+b1)&(bag2'=bag2+b1)&(bag3'=bag3+b1)&(bag4'=bag4+b1);
+	[addBlock1] (Mw1_STATE=Winner1 & Mw_STATE=Winner) | (Mw1_STATE=Winner1 & Mw2_STATE=Winner2) | (Mw1_STATE=Winner1 & Mw3_STATE=Winner3)  | (Mw1_STATE=Winner1 & Mw4_STATE=Winner4)   -> r : (lenFork'=lenFork+1)&(bag'=bag+b1)&(bag2'=bag2+b1)&(bag3'=bag3+b1)&(bag4'=bag4+b1);
+	[addBlock1] (Mw1_STATE=Lost1) -> r : (Global_STATE'=0);
+	[addBlock2] (Mw2_STATE=Winner2 & Mw_STATE!=Winner & Mw1_STATE!=Winner1  & Mw3_STATE!=Winner3  & Mw4_STATE!=Winner4 )  -> r : (lenFork'=0)&(bag1'=bag1+b2)&(bag'=bag+b2)&(bag3'=bag3+b2)&(bag4'=bag4+b2);
+	[addBlock2] (Mw2_STATE=Winner2 & Mw1_STATE=Winner1) | (Mw2_STATE=Winner2 & Mw_STATE=Winner) | (Mw2_STATE=Winner2 & Mw3_STATE=Winner3)  | (Mw2_STATE=Winner2 & Mw4_STATE=Winner4)   -> r : (lenFork'=lenFork+1)&(bag'=bag+b2)&(bag1'=bag1+b2)&(bag3'=bag3+b2)&(bag4'=bag4+b2);
+	[addBlock2] (Mw2_STATE=Lost2) -> r : (Global_STATE'=0);
+	[addBlock3] (Mw3_STATE=Winner3 & Mw_STATE!=Winner & Mw1_STATE!=Winner1  & Mw2_STATE!=Winner2  & Mw4_STATE!=Winner4 )  -> r : (lenFork'=0)&(bag1'=bag1+b3)&(bag2'=bag2+b3)&(bag'=bag+b3)&(bag4'=bag4+b3);
+	[addBlock3] (Mw3_STATE=Winner3 & Mw1_STATE=Winner1) | (Mw3_STATE=Winner3 & Mw_STATE=Winner) | (Mw3_STATE=Winner3 & Mw2_STATE=Winner2)  | (Mw3_STATE=Winner3 & Mw4_STATE=Winner4)   -> r : (lenFork'=lenFork+1)&(bag'=bag+b3)&(bag1'=bag1+b3)&(bag2'=bag2+b3)&(bag4'=bag4+b3);
+	[addBlock3] (Mw3_STATE=Lost3) -> r : (Global_STATE'=0);
+	[addBlock4] (Mw4_STATE=Winner4 & Mw_STATE!=Winner & Mw1_STATE!=Winner1  & Mw2_STATE!=Winner2  & Mw3_STATE!=Winner3 )  -> r : (lenFork'=0)&(bag1'=bag1+b4)&(bag2'=bag2+b4)&(bag3'=bag3+b4)&(bag'=bag+b4);
+	[addBlock4] (Mw4_STATE=Winner4 & Mw1_STATE=Winner1) | (Mw4_STATE=Winner4 & Mw_STATE=Winner) | (Mw4_STATE=Winner4 & Mw2_STATE=Winner2)  | (Mw4_STATE=Winner4 & Mw3_STATE=Winner3)   -> r : (lenFork'=lenFork+1)&(bag'=bag+b4)&(bag1'=bag1+b4)&(bag2'=bag2+b4)&(bag3'=bag3+b4);
+	[addBlock4] (Mw4_STATE=Lost4) -> r : (Global_STATE'=0);
+
+endmodule
+
+system (HasherRes |[win,lose]| (Mw ||| (Mw1 ||| (Mw2 ||| (Mw3 ||| Mw4 ))))) |[addBlock,addBlock1,addBlock2,addBlock3,addBlock4]| Global endsystem
+
+label "mining" = Mw_STATE = Winner | Mw1_STATE = Winner1 | Mw2_STATE = Winner2 | Mw3_STATE = Winner3 | Mw4_STATE = Winner4  ;
+label "mining1" = Mw_STATE = Winner;
+label "mining2" = Mw1_STATE = Winner1;
+label "mining3" = Mw2_STATE = Winner2;
+label "mining4" = Mw3_STATE = Winner3;
+label "mining5" = Mw4_STATE = Winner4;
+
+label "miningTot1" = Mw1_STATE = Winner1 | Mw2_STATE = Winner2 | Mw3_STATE = Winner3 | Mw4_STATE = Winner4  ;
+label "miningTot2" = Mw_STATE = Winner | Mw2_STATE = Winner2 | Mw3_STATE = Winner3 | Mw4_STATE = Winner4  ;
+label "miningTot3" = Mw_STATE = Winner | Mw1_STATE = Winner1 | Mw3_STATE = Winner3 | Mw4_STATE = Winner4 ;
+label "miningTot4" = Mw_STATE = Winner | Mw1_STATE = Winner1 | Mw2_STATE = Winner2 | Mw4_STATE = Winner4  ;
+label "miningTot5" = Mw_STATE = Winner | Mw1_STATE = Winner1 | Mw2_STATE = Winner2 | Mw3_STATE = Winner3  ;
