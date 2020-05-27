@@ -3,7 +3,7 @@ ctmc
 
 const k;
 const T;
-const double rMw = 0.008;
+const double rMw = 0.08;
 const double mR = 1/600;
 const double lR = 1-1/600;
 
