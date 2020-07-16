@@ -578,33 +578,33 @@ module Global
 	[addBlock7] (Mw7_STATE=Winner7)  -> r : (bag'=bag+b7)&(bag1'=bag1+b7)&(bag2'=bag2+b7)&(bag3'=bag3+b7)&(bag4'=bag4+b7)&(bag5'=bag5+b7)&(bag6'=bag6+b7)&(bag15'=bag15+b7)&(bag8'=bag8+b7)&(bag9'=bag9+b7)&(bag10'=bag10+b7)&(bag11'=bag11+b7)&(bag12'=bag12+b7)&(bag13'=bag13+b7)&(bag14'=bag14+b7);
 	[addBlock7] (Mw7_STATE=Lost7) -> r : (Global_STATE'=0);
 
-  [addBlock8] (Mw8_STATE=Winner8)  -> r : (bag'=bag+b8)&(bag1'=bag1+b8)&(bag2'=bag2+b8)&(bag3'=bag3+b8)&(bag4'=bag4+b8)&(bag5'=bag5+b8)&(bag6'=bag6+b8)&(bag7'=bag7+b8)&(bag15'=bag15+b8)&(bag9'=bag9+b8)&(bag10'=bag10+b8)&(bag11'=bag11+b8)&(bag12'=bag12+b8)&(bag13'=bag13+b8)&(bag14'=bag14+b8);
-  [addBlock8] (Mw8_STATE=Lost8) -> r : (Global_STATE'=0);
+  	[addBlock8] (Mw8_STATE=Winner8)  -> r : (bag'=bag+b8)&(bag1'=bag1+b8)&(bag2'=bag2+b8)&(bag3'=bag3+b8)&(bag4'=bag4+b8)&(bag5'=bag5+b8)&(bag6'=bag6+b8)&(bag7'=bag7+b8)&(bag15'=bag15+b8)&(bag9'=bag9+b8)&(bag10'=bag10+b8)&(bag11'=bag11+b8)&(bag12'=bag12+b8)&(bag13'=bag13+b8)&(bag14'=bag14+b8);
+  	[addBlock8] (Mw8_STATE=Lost8) -> r : (Global_STATE'=0);
 
-  [addBlock9] (Mw9_STATE=Winner9)  -> r : (bag'=bag+b9)&(bag1'=bag1+b9)&(bag2'=bag2+b9)&(bag3'=bag3+b9)&(bag4'=bag4+b9)&(bag5'=bag5+b9)&(bag6'=bag6+b9)&(bag7'=bag7+b9)&(bag8'=bag8+b9)&(bag15'=bag15+b9)&(bag10'=bag10+b9)&(bag11'=bag11+b9)&(bag12'=bag12+b9)&(bag13'=bag13+b9)&(bag14'=bag14+b9);
-  [addBlock9] (Mw9_STATE=Lost9) -> r : (Global_STATE'=0);
+ 	[addBlock9] (Mw9_STATE=Winner9)  -> r : (bag'=bag+b9)&(bag1'=bag1+b9)&(bag2'=bag2+b9)&(bag3'=bag3+b9)&(bag4'=bag4+b9)&(bag5'=bag5+b9)&(bag6'=bag6+b9)&(bag7'=bag7+b9)&(bag8'=bag8+b9)&(bag15'=bag15+b9)&(bag10'=bag10+b9)&(bag11'=bag11+b9)&(bag12'=bag12+b9)&(bag13'=bag13+b9)&(bag14'=bag14+b9);
+  	[addBlock9] (Mw9_STATE=Lost9) -> r : (Global_STATE'=0);
 
-  [addBlock10] (Mw10_STATE=Winner10 )   -> r : (bag'=bag+b10)&(bag1'=bag1+b10)&(bag2'=bag2+b10)&(bag3'=bag3+b10)&(bag4'=bag4+b10)&(bag5'=bag5+b10)&(bag6'=bag6+b10)&(bag7'=bag7+b10)&(bag8'=bag8+b10)&(bag9'=bag9+b10)&(bag15'=bag15+b10)&(bag11'=bag11+b10)&(bag12'=bag12+b10)&(bag13'=bag13+b10)&(bag14'=bag14+b10);
-  [addBlock10] (Mw10_STATE=Lost10) -> r : (Global_STATE'=0);
+  	[addBlock10] (Mw10_STATE=Winner10 )   -> r : (bag'=bag+b10)&(bag1'=bag1+b10)&(bag2'=bag2+b10)&(bag3'=bag3+b10)&(bag4'=bag4+b10)&(bag5'=bag5+b10)&(bag6'=bag6+b10)&(bag7'=bag7+b10)&(bag8'=bag8+b10)&(bag9'=bag9+b10)&(bag15'=bag15+b10)&(bag11'=bag11+b10)&(bag12'=bag12+b10)&(bag13'=bag13+b10)&(bag14'=bag14+b10);
+  	[addBlock10] (Mw10_STATE=Lost10) -> r : (Global_STATE'=0);
 
-  [addBlock11] (Mw11_STATE=Winner11 )  -> r : (bag'=bag+b11)&(bag1'=bag1+b11)&(bag2'=bag2+b11)&(bag3'=bag3+b11)&(bag4'=bag4+b11)&(bag5'=bag5+b11)&(bag6'=bag6+b11)&(bag7'=bag7+b11)&(bag8'=bag8+b11)&(bag9'=bag9+b11)&(bag10'=bag10+b11)&(bag15'=bag15+b11)&(bag12'=bag12+b11)&(bag13'=bag13+b11)&(bag14'=bag14+b11);
-  [addBlock11] (Mw11_STATE=Lost11) -> r : (Global_STATE'=0);
+  	[addBlock11] (Mw11_STATE=Winner11 )  -> r : (bag'=bag+b11)&(bag1'=bag1+b11)&(bag2'=bag2+b11)&(bag3'=bag3+b11)&(bag4'=bag4+b11)&(bag5'=bag5+b11)&(bag6'=bag6+b11)&(bag7'=bag7+b11)&(bag8'=bag8+b11)&(bag9'=bag9+b11)&(bag10'=bag10+b11)&(bag15'=bag15+b11)&(bag12'=bag12+b11)&(bag13'=bag13+b11)&(bag14'=bag14+b11);
+  	[addBlock11] (Mw11_STATE=Lost11) -> r : (Global_STATE'=0);
 
-  [addBlock12] (Mw12_STATE=Winner12)  -> r : (bag'=bag+b12)&(bag1'=bag1+b12)&(bag2'=bag2+b12)&(bag3'=bag3+b12)&(bag4'=bag4+b12)&(bag5'=bag5+b12)&(bag6'=bag6+b12)&(bag7'=bag7+b12)&(bag8'=bag8+b12)&(bag9'=bag9+b12)&(bag10'=bag10+b12)&(bag11'=bag11+b12)&(bag15'=bag15+b12)&(bag13'=bag13+b12)&(bag14'=bag14+b12);
-  [addBlock12] (Mw12_STATE=Lost12) -> r : (Global_STATE'=0);
+  	[addBlock12] (Mw12_STATE=Winner12)  -> r : (bag'=bag+b12)&(bag1'=bag1+b12)&(bag2'=bag2+b12)&(bag3'=bag3+b12)&(bag4'=bag4+b12)&(bag5'=bag5+b12)&(bag6'=bag6+b12)&(bag7'=bag7+b12)&(bag8'=bag8+b12)&(bag9'=bag9+b12)&(bag10'=bag10+b12)&(bag11'=bag11+b12)&(bag15'=bag15+b12)&(bag13'=bag13+b12)&(bag14'=bag14+b12);
+  	[addBlock12] (Mw12_STATE=Lost12) -> r : (Global_STATE'=0);
 
-  [addBlock13] (Mw13_STATE=Winner13)  -> r : (bag'=bag+b13)&(bag1'=bag1+b13)&(bag2'=bag2+b13)&(bag3'=bag3+b13)&(bag4'=bag4+b13)&(bag5'=bag5+b13)&(bag6'=bag6+b13)&(bag7'=bag7+b13)&(bag8'=bag8+b13)&(bag9'=bag9+b13)&(bag10'=bag10+b13)&(bag11'=bag11+b13)&(bag12'=bag12+b13)&(bag15'=bag15+b13)&(bag14'=bag14+b13);
-  [addBlock13] (Mw13_STATE=Lost13) -> r : (Global_STATE'=0);
+  	[addBlock13] (Mw13_STATE=Winner13)  -> r : (bag'=bag+b13)&(bag1'=bag1+b13)&(bag2'=bag2+b13)&(bag3'=bag3+b13)&(bag4'=bag4+b13)&(bag5'=bag5+b13)&(bag6'=bag6+b13)&(bag7'=bag7+b13)&(bag8'=bag8+b13)&(bag9'=bag9+b13)&(bag10'=bag10+b13)&(bag11'=bag11+b13)&(bag12'=bag12+b13)&(bag15'=bag15+b13)&(bag14'=bag14+b13);
+  	[addBlock13] (Mw13_STATE=Lost13) -> r : (Global_STATE'=0);
 
-  [addBlock14] (Mw14_STATE=Winner14)  -> r : (bag'=bag+b14)&(bag1'=bag1+b14)&(bag2'=bag2+b14)&(bag3'=bag3+b14)&(bag4'=bag4+b14)&(bag5'=bag5+b14)&(bag6'=bag6+b14)&(bag7'=bag7+b14)&(bag8'=bag8+b14)&(bag9'=bag9+b14)&(bag10'=bag10+b14)&(bag11'=bag11+b14)&(bag12'=bag12+b14)&(bag13'=bag13+b14)&(bag15'=bag15+b14);
-  [addBlock14] (Mw14_STATE=Lost14) -> r : (Global_STATE'=0);
+  	[addBlock14] (Mw14_STATE=Winner14)  -> r : (bag'=bag+b14)&(bag1'=bag1+b14)&(bag2'=bag2+b14)&(bag3'=bag3+b14)&(bag4'=bag4+b14)&(bag5'=bag5+b14)&(bag6'=bag6+b14)&(bag7'=bag7+b14)&(bag8'=bag8+b14)&(bag9'=bag9+b14)&(bag10'=bag10+b14)&(bag11'=bag11+b14)&(bag12'=bag12+b14)&(bag13'=bag13+b14)&(bag15'=bag15+b14);
+  	[addBlock14] (Mw14_STATE=Lost14) -> r : (Global_STATE'=0);
 
-  [addBlock15] (Mw15_STATE=Winner15)  -> r : (bag'=bag+b15)&(bag1'=bag1+b15)&(bag2'=bag2+b15)&(bag3'=bag3+b15)&(bag4'=bag4+b15)&(bag5'=bag5+b15)&(bag6'=bag6+b15)&(bag7'=bag7+b15)&(bag8'=bag8+b15)&(bag9'=bag9+b15)&(bag10'=bag10+b15)&(bag11'=bag11+b15)&(bag12'=bag12+b15)&(bag13'=bag13+b15)&(bag14'=bag14+b15);
-  [addBlock15] (Mw15_STATE=Lost15) -> r : (Global_STATE'=0);
+  	[addBlock15] (Mw15_STATE=Winner15)  -> r : (bag'=bag+b15)&(bag1'=bag1+b15)&(bag2'=bag2+b15)&(bag3'=bag3+b15)&(bag4'=bag4+b15)&(bag5'=bag5+b15)&(bag6'=bag6+b15)&(bag7'=bag7+b15)&(bag8'=bag8+b15)&(bag9'=bag9+b15)&(bag10'=bag10+b15)&(bag11'=bag11+b15)&(bag12'=bag12+b15)&(bag13'=bag13+b15)&(bag14'=bag14+b15);
+  	[addBlock15] (Mw15_STATE=Lost15) -> r : (Global_STATE'=0);
 
 endmodule
 
-system (HasherRes |[win,lose]| (Mw ||| (Mw1 ||| (Mw2 ||| (Mw3 ||| Mw4 ))))) |[addBlock,addBlock1,addBlock2,addBlock3,addBlock4]| Global endsystem
+system (HasherRes |[win,lose]| (Mw ||| (Mw1 ||| (Mw2 ||| (Mw3 ||| (Mw4 ||| (Mw5 ||| (Mw6 ||| ( Mw7 ||| (Mw8 ||| (Mw9 ||| (Mw10 ||| (Mw11 ||| (Mw12 ||| (Mw13 ||| (Mw14 ||| Mw15)))))))))))))))) |[addBlock,addBlock1,addBlock2,addBlock3,addBlock4]| Global endsystem
 
 label "mining" = Mw_STATE = Winner | Mw1_STATE = Winner1 | Mw2_STATE = Winner2 | Mw3_STATE = Winner3 | Mw4_STATE = Winner4 | Mw5_STATE = Winner5 | Mw6_STATE = Winner6 | Mw7_STATE = Winner7 | Mw8_STATE = Winner8 | Mw9_STATE = Winner9 | Mw10_STATE = Winner10 | Mw11_STATE = Winner11 | Mw12_STATE = Winner12 | Mw13_STATE = Winner13 | Mw14_STATE = Winner14 | Mw15_STATE = Winner15;
 label "mining1" = Mw_STATE = Winner;
@@ -612,13 +612,15 @@ label "mining2" = Mw1_STATE = Winner1;
 label "mining3" = Mw2_STATE = Winner2;
 label "mining4" = Mw3_STATE = Winner3;
 label "mining5" = Mw4_STATE = Winner4;
-label "adding1" = Mw1_STATE = Add1 & Mw2_STATE = Add2 & Mw3_STATE = Add3 & Mw4_STATE = Add4 ;
-label "adding2" = Mw_STATE = Add & Mw2_STATE = Add2 & Mw3_STATE = Add3 & Mw4_STATE = Add4 ;
-label "adding3" = Mw1_STATE = Add1 & Mw_STATE = Add & Mw3_STATE = Add3 & Mw4_STATE = Add4 ;
-label "adding4" = Mw1_STATE = Add1 & Mw2_STATE = Add2 & Mw_STATE = Add & Mw4_STATE = Add4 ;
-label "adding5" = Mw1_STATE = Add1 & Mw2_STATE = Add2 & Mw3_STATE = Add3 & Mw_STATE = Add ;
-label "miningTot1" = Mw1_STATE = Winner1 | Mw2_STATE = Winner2 | Mw3_STATE = Winner3 | Mw4_STATE = Winner4  ;
-label "miningTot2" = Mw_STATE = Winner | Mw2_STATE = Winner2 | Mw3_STATE = Winner3 | Mw4_STATE = Winner4  ;
-label "miningTot3" = Mw_STATE = Winner | Mw1_STATE = Winner1 | Mw3_STATE = Winner3 | Mw4_STATE = Winner4 ;
-label "miningTot4" = Mw_STATE = Winner | Mw1_STATE = Winner1 | Mw2_STATE = Winner2 | Mw4_STATE = Winner4  ;
-label "miningTot5" = Mw_STATE = Winner | Mw1_STATE = Winner1 | Mw2_STATE = Winner2 | Mw3_STATE = Winner3  ;
+label "mining6" = Mw5_STATE = Winner5;
+label "mining7" = Mw6_STATE = Winner6;
+label "mining8" = Mw7_STATE = Winner7;
+label "mining9" = Mw8_STATE = Winner8;
+label "mining10" = Mw9_STATE = Winner9;
+label "mining11" = Mw10_STATE = Winner10;
+label "mining12" = Mw11_STATE = Winner11;
+label "mining13" = Mw12_STATE = Winner12;
+label "mining14" = Mw13_STATE = Winner13;
+label "mining15" = Mw14_STATE = Winner14;
+label "mining16" = Mw15_STATE = Winner15;
+
