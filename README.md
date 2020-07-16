@@ -1,6 +1,6 @@
 # Installation
  
-  -> Download the .tar file and extract it
+  -> Download the .tar.gz file and extract it
   
   -> To install, enter the PRISM-new directory and type `./install.sh`
   
