@@ -1,18 +1,37 @@
+// probability that the minimum of the differences between the blockchains is k, with k = 0, 1, 2, ..
+// this formula computes the probability of a fork of length k within T time units
 P=?[true U<=T min(diff,diff1,diff3,diff4,diff5,diff6,diff7,diff8,diff9,diff10,diff11,diff12,diff13,diff14,diff15)=k]
+// probability that someone mines a block within T time units
 P=?[true U<=T "mining"]
+// probability that miner1 mines a block within T time units
 P=? [ true U<=T "mining1" ]
+// probability that miner2 mines a block within T time units
 P=? [ true U<=T "mining2" ]
+// probability that miner3 mines a block within T time units
 P=? [ true U<=T "mining3" ]
+// probability that miner4 mines a block within T time units
 P=? [ true U<=T "mining4" ]
+// probability that miner5 mines a block within T time units
 P=? [ true U<=T "mining5" ]
+// probability that miner6 mines a block within T time units
 P=? [ true U<=T "mining6" ]
+// probability that miner7 mines a block within T time units
 P=? [ true U<=T "mining7" ]
+// probability that miner8 mines a block within T time units
 P=? [ true U<=T "mining8" ]
+// probability that miner9 mines a block within T time units
 P=? [ true U<=T "mining9" ]
+// probability that miner10 mines a block within T time units
 P=? [ true U<=T "mining10" ]
+// probability that miner11 mines a block within T time units
 P=? [ true U<=T "mining11" ]
+// probability that miner12 mines a block within T time units
 P=? [ true U<=T "mining12" ]
+// probability that miner13 mines a block within T time units
 P=? [ true U<=T "mining13" ]
+// probability that miner14 mines a block within T time units
 P=? [ true U<=T "mining14" ]
+// probability that miner15 mines a block within T time units
 P=? [ true U<=T "mining15" ]
+// probability that miner16 mines a block within T time units
 P=? [ true U<=T "mining16" ]
