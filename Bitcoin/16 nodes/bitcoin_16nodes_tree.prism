@@ -10,11 +10,22 @@ const double mR = 1/600;
 const double lR = 1-mR;
 
 // hashing powers
-const double hR = 0.2;
-const double hR1 = 0.2;
-const double hR2 = 0.2;
-const double hR3 = 0.2;
-const double hR4 = 0.2;
+const double hR = 19.1/100;
+const double hR1 = 0.3/100;
+const double hR2 = 6.4/100;
+const double hR3 = 8.6/100;
+const double hR4 = 7.2/100;
+const double hR5 = 6.9/100;
+const double hR6 = 6.6/100;
+const double hR7 = 11.1/100;
+const double hR8 = 6.4/100;
+const double hR9 = 3.9/100;
+const double hR10 = 3/100;
+const double hR11 = 3/100;
+const double hR12 = 1.7/100;
+const double hR13 = 1.1/100;
+const double hR14 = 14.1/100;
+const double hR15 = 0.6/100;
 
 const int N = 100;
 
