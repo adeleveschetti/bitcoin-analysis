@@ -592,52 +592,52 @@ module Network
 
 
   [addBlock] (M_STATE=Winner)  -> rb : (set1'=set1+b)&(set2'=set2+b)&(set3'=set3+b)&(set4'=set4+b)&(set5'=set5+b)&(set6'=set6+b)&(set7'=set7+b)&(set8'=set8+b)&(set9'=set9+b)&(set10'=set10+b)&(set11'=set11+b)&(set12'=set12+b)&(set13'=set13+b)&(set14'=set14+b)&(set15'=set15+b)&(len1'=len1+1)&(len2'=len2+1)&(len3'=len3+1)&(len4'=len4+1)&(len5'=len5+1)&(len6'=len6+1)&(len7'=len7+1)&(len8'=len8+1)&(len9'=len9+1)&(len10'=len10+1)&(len11'=len11+1)&(len12'=len12+1)&(len13'=len13+1)&(len14'=len14+1)&(len15'=len15+1);
-	[removeBlock] (M_STATE=Lost) -> 1 : (set'=set-b)&(len'=len-1);
+	[removeBlock] (M_STATE=Move) -> 1 : (set'=set-b)&(len'=len-1);
 
 	[addBlock1] (M1_STATE=Winner) -> rb :(set'=set+b1)&(set2'=set2+b1)&(set3'=set3+b1)&(set4'=set4+b1)&(set5'=set5+b1)&(set6'=set6+b1)&(set7'=set7+b1)&(set8'=set8+b1)&(set9'=set9+b1)&(set10'=set10+b1)&(set11'=set11+b1)&(set12'=set12+b1)&(set13'=set13+b1)&(set14'=set14+b1)&(set15'=set15+b1)&(len'=len+1)&(len1'=len1+1)&(len3'=len3+1)&(len4'=len4+1)&(len5'=len5+1)&(len6'=len6+1)&(len7'=len7+1)&(len8'=len8+1)&(len9'=len9+1)&(len10'=len10+1)&(len11'=len11+1)&(len12'=len12+1)&(len13'=len13+1)&(len14'=len14+1)&(len15'=len15+1);
-	[removeBlock1] (M1_STATE=Lost) -> 1 : (set1'=set1-b1)&(len1'=len1-1);
+	[removeBlock1] (M1_STATE=Move) -> 1 : (set1'=set1-b1)&(len1'=len1-1);
 
 	[addBlock2] (M2_STATE=Winner)   -> rb : (set1'=set1+b2)&(set'=set+b2)&(set3'=set3+b2)&(set4'=set4+b2)&(set5'=set5+b2)&(set6'=set6+b2)&(set7'=set7+b2)&(set8'=set8+b2)&(set9'=set9+b2)&(set10'=set10+b2)&(set11'=set11+b2)&(set12'=set12+b2)&(set13'=set13+b2)&(set14'=set14+b2)&(set15'=set15+b2)&(len1'=len1+1)&(len'=len+1)&(len3'=len3+1)&(len4'=len4+1)&(len5'=len5+1)&(len6'=len6+1)&(len7'=len7+1)&(len8'=len8+1)&(len9'=len9+1)&(len10'=len10+1)&(len11'=len11+1)&(len12'=len12+1)&(len13'=len13+1)&(len14'=len14+1)&(len15'=len15+1);
-	[removeBlock2] (M2_STATE=Lost) -> 1 : (set2'=set2-b2)&(len2'=len2-1);
+	[removeBlock2] (M2_STATE=Move) -> 1 : (set2'=set2-b2)&(len2'=len2-1);
 
 	[addBlock3] (M3_STATE=Winner)   -> rb : (set1'=set1+b3)&(set2'=set2+b3)&(set'=set+b3)&(set4'=set4+b3)&(set5'=set5+b3)&(set6'=set6+b3)&(set7'=set7+b3)&(set8'=set8+b3)&(set9'=set9+b3)&(set10'=set10+b3)&(set11'=set11+b3)&(set12'=set12+b3)&(set13'=set13+b3)&(set14'=set14+b3)&(set15'=set15+b3)&(len1'=len1+1)&(len2'=len2+1)&(len'=len+1)&(len4'=len4+1)&(len5'=len5+1)&(len6'=len6+1)&(len7'=len7+1)&(len8'=len8+1)&(len9'=len9+1)&(len10'=len10+1)&(len11'=len11+1)&(len12'=len12+1)&(len13'=len13+1)&(len14'=len14+1)&(len15'=len15+1);
-	[removeBlock3] (M3_STATE=Lost) -> 1 : (set3'=set3-b3)&(len3'=len3-1);
+	[removeBlock3] (M3_STATE=Move) -> 1 : (set3'=set3-b3)&(len3'=len3-1);
 
 	[addBlock4] (M4_STATE=Winner)   -> rb : (set1'=set1+b4)&(set2'=set2+b4)&(set3'=set3+b4)&(set'=set+b4)&(set5'=set5+b4)&(set6'=set6+b4)&(set7'=set7+b4)&(set8'=set8+b4)&(set9'=set9+b4)&(set10'=set10+b4)&(set11'=set11+b4)&(set12'=set12+b4)&(set13'=set13+b4)&(set14'=set14+b4)&(set15'=set15+b4)&(len1'=len1+1)&(len2'=len2+1)&(len3'=len3+1)&(len'=len+1)&(len5'=len5+1)&(len6'=len6+1)&(len7'=len7+1)&(len8'=len8+1)&(len9'=len9+1)&(len10'=len10+1)&(len11'=len11+1)&(len12'=len12+1)&(len13'=len13+1)&(len14'=len14+1)&(len15'=len15+1);
-	[removeBlock4] (M4_STATE=Lost) -> 1 : (set4'=set4-b4)&(len4'=len4-1);
+	[removeBlock4] (M4_STATE=Move) -> 1 : (set4'=set4-b4)&(len4'=len4-1);
 
   [addBlock5] (M5_STATE=Winner)  -> rb : (set1'=set1+b5)&(set2'=set2+b5)&(set3'=set3+b5)&(set4'=set4+b5)&(set'=set+b5)&(set6'=set6+b5)&(set7'=set7+b5)&(set8'=set8+b5)&(set9'=set9+b5)&(set10'=set10+b5)&(set11'=set11+b5)&(set12'=set12+b5)&(set13'=set13+b5)&(set14'=set14+b5)&(set15'=set15+b5)&(len1'=len1+1)&(len2'=len2+1)&(len3'=len3+1)&(len4'=len4+1)&(len'=len+1)&(len6'=len6+1)&(len7'=len7+1)&(len8'=len8+1)&(len9'=len9+1)&(len10'=len10+1)&(len11'=len11+1)&(len12'=len12+1)&(len13'=len13+1)&(len14'=len14+1)&(len15'=len15+1);
-  [removeBlock5] (M5_STATE=Lost) -> 1 : (set5'=set5-b5)&(len5'=len5-1);
+  [removeBlock5] (M5_STATE=Move) -> 1 : (set5'=set5-b5)&(len5'=len5-1);
 
   [addBlock6] (M6_STATE=Winner) -> rb :(set1'=set1+b6)&(set2'=set2+b6)&(set3'=set3+b6)&(set4'=set4+b6)&(set5'=set5+b6)&(set'=set+b6)&(set7'=set7+b6)&(set8'=set8+b6)&(set9'=set9+b6)&(set10'=set10+b6)&(set11'=set11+b6)&(set12'=set12+b6)&(set13'=set13+b6)&(set14'=set14+b6)&(set15'=set15+b6)&(len1'=len1+1)&(len2'=len2+1)&(len3'=len3+1)&(len4'=len4+1)&(len5'=len5+1)&(len'=len+1)&(len7'=len7+1)&(len8'=len8+1)&(len9'=len9+1)&(len10'=len10+1)&(len11'=len11+1)&(len12'=len12+1)&(len13'=len13+1)&(len14'=len14+1)&(len15'=len15+1);
-  [removeBlock6] (M6_STATE=Lost) -> 1 : (set6'=set6-b6)&(len6'=len6-1);
+  [removeBlock6] (M6_STATE=Move) -> 1 : (set6'=set6-b6)&(len6'=len6-1);
 
   [addBlock7] (M7_STATE=Winner)   -> rb : (set1'=set1+b7)&(set2'=set2+b7)&(set3'=set3+b7)&(set4'=set4+b7)&(set5'=set5+b7)&(set6'=set6+b7)&(set'=set+b7)&(set8'=set8+b7)&(set9'=set9+b7)&(set10'=set10+b7)&(set11'=set11+b7)&(set12'=set12+b7)&(set13'=set13+b7)&(set14'=set14+b7)&(set15'=set15+b7)&(len1'=len1+1)&(len2'=len2+1)&(len3'=len3+1)&(len4'=len4+1)&(len5'=len5+1)&(len6'=len6+1)&(len'=len+1)&(len8'=len8+1)&(len9'=len9+1)&(len10'=len10+1)&(len11'=len11+1)&(len12'=len12+1)&(len13'=len13+1)&(len14'=len14+1)&(len15'=len15+1);
-  [removeBlock7] (M7_STATE=Lost) -> 1 : (set7'=set7-b7)&(len7'=len7-1);
+  [removeBlock7] (M7_STATE=Move) -> 1 : (set7'=set7-b7)&(len7'=len7-1);
 
   [addBlock8] (M8_STATE=Winner)   -> rb : (set1'=set1+b8)&(set2'=set2+b8)&(set3'=set3+b8)&(set4'=set4+b8)&(set5'=set5+b8)&(set6'=set6+b8)&(set7'=set7+b8)&(set'=set+b8)&(set9'=set9+b8)&(set10'=set10+b8)&(set11'=set11+b8)&(set12'=set12+b8)&(set13'=set13+b8)&(set14'=set14+b8)&(set15'=set15+b8)&(len1'=len1+1)&(len2'=len2+1)&(len3'=len3+1)&(len4'=len4+1)&(len5'=len5+1)&(len6'=len6+1)&(len7'=len7+1)&(len8'=len8+1)&(len9'=len9+1)&(len10'=len10+1)&(len11'=len11+1)&(len12'=len12+1)&(len13'=len13+1)&(len14'=len14+1)&(len15'=len15+1);
-  [removeBlock8] (M8_STATE=Lost) -> 1 : (set8'=set8-b8)&(len8'=len8-1);
+  [removeBlock8] (M8_STATE=Move) -> 1 : (set8'=set8-b8)&(len8'=len8-1);
 
   [addBlock9] (M9_STATE=Winner)   -> rb : (set1'=set1+b9)&(set2'=set2+b9)&(set3'=set3+b9)&(set4'=set4+b9)&(set5'=set5+b9)&(set6'=set6+b9)&(set7'=set7+b9)&(set8'=set8+b9)&(set'=set+b9)&(set10'=set10+b9)&(set11'=set11+b9)&(set12'=set12+b9)&(set13'=set13+b9)&(set14'=set14+b9)&(set15'=set15+b9)&(len1'=len1+1)&(len2'=len2+1)&(len3'=len3+1)&(len4'=len4+1)&(len5'=len5+1)&(len6'=len6+1)&(len7'=len7+1)&(len8'=len8+1)&(len'=len+1)&(len10'=len10+1)&(len11'=len11+1)&(len12'=len12+1)&(len13'=len13+1)&(len14'=len14+1)&(len15'=len15+1);
-  [removeBlock9] (M9_STATE=Lost) -> 1 : (set9'=set9-b9)&(len9'=len9-1);
+  [removeBlock9] (M9_STATE=Move) -> 1 : (set9'=set9-b9)&(len9'=len9-1);
 
   [addb10lock10] (M10_STATE=Winner)  -> rb : (set1'=set1+b10)&(set2'=set2+b10)&(set3'=set3+b10)&(set4'=set4+b10)&(set5'=set5+b10)&(set6'=set6+b10)&(set7'=set7+b10)&(set8'=set8+b10)&(set9'=set9+b10)&(set'=set+b10)&(set11'=set11+b10)&(set12'=set12+b10)&(set13'=set13+b10)&(set14'=set14+b10)&(set15'=set15+b10)&(len1'=len1+1)&(len2'=len2+1)&(len3'=len3+1)&(len4'=len4+1)&(len5'=len5+1)&(len6'=len6+1)&(len7'=len7+1)&(len8'=len8+1)&(len9'=len9+1)&(len'=len+1)&(len11'=len11+1)&(len12'=len12+1)&(len13'=len13+1)&(len14'=len14+1)&(len15'=len15+1);
-  [removeBlock10] (M10_STATE=Lost) -> 1 : (set10'=set10-b10)&(len10'=len10-1);
+  [removeBlock10] (M10_STATE=Move) -> 1 : (set10'=set10-b10)&(len10'=len10-1);
 
   [addBlock11] (M11_STATE=Winner)  -> rb : (set1'=set1+b11)&(set2'=set2+b11)&(set3'=set3+b11)&(set4'=set4+b11)&(set5'=set5+b11)&(set6'=set6+b11)&(set7'=set7+b11)&(set8'=set8+b11)&(set9'=set9+b11)&(set10'=set10+b11)&(set'=set+b11)&(set12'=set12+b11)&(set13'=set13+b11)&(set14'=set14+b11)&(set15'=set15+b11)&(len1'=len1+1)&(len2'=len2+1)&(len3'=len3+1)&(len4'=len4+1)&(len5'=len5+1)&(len6'=len6+1)&(len7'=len7+1)&(len8'=len8+1)&(len9'=len9+1)&(len10'=len10+1)&(len'=len+1)&(len12'=len12+1)&(len13'=len13+1)&(len14'=len14+1)&(len15'=len15+1);
-  [removeBlock11] (M11_STATE=Lost) -> 1 : (set11'=set11-b11)&(len11'=len11-1);
+  [removeBlock11] (M11_STATE=Move) -> 1 : (set11'=set11-b11)&(len11'=len11-1);
 
   [addBlock12] (M12_STATE=Winner)  -> rb : (set1'=set1+b12)&(set2'=set2+b12)&(set3'=set3+b12)&(set4'=set4+b12)&(set5'=set5+b12)&(set6'=set6+b12)&(set7'=set7+b12)&(set8'=set8+b12)&(set9'=set9+b12)&(set10'=set10+b12)&(set11'=set11+b12)&(set'=set+b12)&(set13'=set13+b12)&(set14'=set14+b12)&(set15'=set15+b12)&(len1'=len1+1)&(len2'=len2+1)&(len3'=len3+1)&(len4'=len4+1)&(len5'=len5+1)&(len6'=len6+1)&(len7'=len7+1)&(len8'=len8+1)&(len9'=len9+1)&(len10'=len10+1)&(len11'=len11+1)&(len'=len+1)&(len13'=len13+1)&(len14'=len14+1)&(len15'=len15+1);
-  [removeBlock12] (M12_STATE=Lost) -> 1 : (set12'=set12-b12)&(len12'=len12-1);
+  [removeBlock12] (M12_STATE=Move) -> 1 : (set12'=set12-b12)&(len12'=len12-1);
 
   [addBlock13] (M13_STATE=Winner)  -> rb : (set1'=set1+b13)&(set2'=set2+b13)&(set3'=set3+b13)&(set4'=set4+b13)&(set5'=set5+b13)&(set6'=set6+b13)&(set7'=set7+b13)&(set8'=set8+b13)&(set9'=set9+b13)&(set10'=set10+b13)&(set11'=set11+b13)&(set12'=set12+b13)&(set'=set+b13)&(set14'=set14+b13)&(set15'=set15+b13)&(len1'=len1+1)&(len2'=len2+1)&(len3'=len3+1)&(len4'=len4+1)&(len5'=len5+1)&(len6'=len6+1)&(len7'=len7+1)&(len8'=len8+1)&(len9'=len9+1)&(len10'=len10+1)&(len11'=len11+1)&(len12'=len12+1)&(len'=len+1)&(len14'=len14+1)&(len15'=len15+1);
-  [removeBlock13] (M13_STATE=Lost) -> 1 : (set13'=set13-b13)&(len13'=len13-1);
+  [removeBlock13] (M13_STATE=Move) -> 1 : (set13'=set13-b13)&(len13'=len13-1);
 
   [addBlock14] (M14_STATE=Winner)  -> rb : (set1'=set1+b14)&(set2'=set2+b14)&(set3'=set3+b14)&(set4'=set4+b14)&(set5'=set5+b14)&(set6'=set6+b14)&(set7'=set7+b14)&(set8'=set8+b14)&(set9'=set9+b14)&(set10'=set10+b14)&(set11'=set11+b14)&(set12'=set12+b14)&(set13'=set13+b14)&(set'=set+b14)&(set15'=set15+b14)&(len1'=len1+1)&(len2'=len2+1)&(len3'=len3+1)&(len4'=len4+1)&(len5'=len5+1)&(len6'=len6+1)&(len7'=len7+1)&(len8'=len8+1)&(len9'=len9+1)&(len10'=len10+1)&(len11'=len11+1)&(len12'=len12+1)&(len13'=len13+1)&(len'=len+1)&(len15'=len15+1);
-  [removeBlock14] (M14_STATE=Lost) -> 1 : (set14'=set14-b14)&(len14'=len14-1);
+  [removeBlock14] (M14_STATE=Move) -> 1 : (set14'=set14-b14)&(len14'=len14-1);
 
   [addBlock15] (M15_STATE=Winner)  -> rb : (set1'=set1+b15)&(set2'=set2+b15)&(set3'=set3+b15)&(set4'=set4+b15)&(set5'=set5+b15)&(set6'=set6+b15)&(set7'=set7+b15)&(set8'=set8+b15)&(set9'=set9+b15)&(set10'=set10+b15)&(set11'=set11+b15)&(set12'=set12+b15)&(set13'=set13+b15)&(set14'=set14+b15)&(set'=set+b15)&(len1'=len1+1)&(len2'=len2+1)&(len3'=len3+1)&(len4'=len4+1)&(len5'=len5+1)&(len6'=len6+1)&(len7'=len7+1)&(len8'=len8+1)&(len9'=len9+1)&(len10'=len10+1)&(len11'=len11+1)&(len12'=len12+1)&(len13'=len13+1)&(len14'=len14+1)&(len'=len+1);
-  [removeBlock15] (M15_STATE=Lost) -> 1 : (set15'=set15-b15)&(len15'=len15-1);
+  [removeBlock15] (M15_STATE=Move) -> 1 : (set15'=set15-b15)&(len15'=len15-1);
 
 endmodule
 
