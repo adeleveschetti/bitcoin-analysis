@@ -592,52 +592,52 @@ module Network
 
 
   [addBlock] (M_STATE=Winner)  -> rb : (set1'=set1+b)&(len1'=len1+1)&(set15'=set15+b)&(len15'=len15+1);
-  [removeBlock] (M_STATE=Lost) -> 1 : (set'=set-b)&(len'=len-1);
+  [removeBlock] (M_STATE=Move) -> 1 : (set'=set-b)&(len'=len-1);
 
   [addBlock1] (M1_STATE=Winner) -> rb :(set'=set+b1)&(set2'=set2+b1)&(len'=len+1)&(len2'=len2+1);
-  [removeBlock1] (M1_STATE=Lost) -> 1 : (set1'=set1-b1)&(len1'=len1-1);
+  [removeBlock1] (M1_STATE=Move) -> 1 : (set1'=set1-b1)&(len1'=len1-1);
 
   [addBlock2] (M2_STATE=Winner)   -> rb : (set1'=set1+b2)&(set3'=set3+b2)&(len1'=len1+1)&(len3'=len3+1);
-  [removeBlock2] (M2_STATE=Lost) -> 1 : (set2'=set2-b2)&(len2'=len2-1);
+  [removeBlock2] (M2_STATE=Move) -> 1 : (set2'=set2-b2)&(len2'=len2-1);
 
   [addBlock3] (M3_STATE=Winner)   -> rb : (set2'=set2+b3)&(set4'=set4+b3)&(len2'=len2+1)&(len4'=len4+1);
-  [removeBlock3] (M3_STATE=Lost) -> 1 : (set3'=set3-b3)&(len3'=len3-1);
+  [removeBlock3] (M3_STATE=Move) -> 1 : (set3'=set3-b3)&(len3'=len3-1);
 
   [addBlock4] (M4_STATE=Winner)   -> rb : (set3'=set3+b4)&(set5'=set5+b4)&(len3'=len3+1)&(len5'=len5+1);
-  [removeBlock4] (M4_STATE=Lost) -> 1 : (set4'=set4-b4)&(len4'=len4-1);
+  [removeBlock4] (M4_STATE=Move) -> 1 : (set4'=set4-b4)&(len4'=len4-1);
 
   [addBlock5] (M5_STATE=Winner)  -> rb : (set4'=set4+b5)&(set6'=set6+b5)&(len4'=len4+1)&(len6'=len6+1);
-  [removeBlock5] (M5_STATE=Lost) -> 1 : (set5'=set5-b5)&(len5'=len5-1);
+  [removeBlock5] (M5_STATE=Move) -> 1 : (set5'=set5-b5)&(len5'=len5-1);
 
   [addBlock6] (M6_STATE=Winner) -> rb :(set5'=set5+b6)&(set7'=set7+b6)&(len5'=len5+1)&(len7'=len7+1);
-  [removeBlock6] (M6_STATE=Lost) -> 1 : (set6'=set6-b6)&(len6'=len6-1);
+  [removeBlock6] (M6_STATE=Move) -> 1 : (set6'=set6-b6)&(len6'=len6-1);
 
   [addBlock7] (M7_STATE=Winner)   -> rb : (set6'=set6+b7)&(set8'=set8+b7)&(len6'=len6+1)&(len8'=len8+1);
-  [removeBlock7] (M7_STATE=Lost) -> 1 : (set7'=set7-b7)&(len7'=len7-1);
+  [removeBlock7] (M7_STATE=Move) -> 1 : (set7'=set7-b7)&(len7'=len7-1);
 
   [addBlock8] (M8_STATE=Winner)   -> rb : (set7'=set7+b8)&(set9'=set9+b8)&(len7'=len7+1)&(len9'=len9+1);
-  [removeBlock8] (M8_STATE=Lost) -> 1 : (set8'=set8-b8)&(len8'=len8-1);
+  [removeBlock8] (M8_STATE=Move) -> 1 : (set8'=set8-b8)&(len8'=len8-1);
 
   [addBlock9] (M9_STATE=Winner)   -> rb : (set8'=set8+b9)&(set10'=set10+b9)&(len8'=len8+1)&(len10'=len10+1);
-  [removeBlock9] (M9_STATE=Lost) -> 1 : (set9'=set9-b9)&(len9'=len9-1);
+  [removeBlock9] (M9_STATE=Move) -> 1 : (set9'=set9-b9)&(len9'=len9-1);
 
   [addBlock10] (M10_STATE=Winner)  -> rb : (set9'=set9+b10)&(len9'=len9+1)&(set11'=set11+b10)&(len11'=len11+1);
-  [removeBlock10] (M10_STATE=Lost) -> 1 : (set10'=set10-b10)&(len10'=len10-1);
+  [removeBlock10] (M10_STATE=Move) -> 1 : (set10'=set10-b10)&(len10'=len10-1);
 
   [addBlock11] (M11_STATE=Winner)  -> rb : (set10'=set10+b11)&(len10'=len10+1)&(set12'=set12+b11)&(len12'=len12+1);
-  [removeBlock11] (M11_STATE=Lost) -> 1 : (set11'=set11-b11)&(len11'=len11-1);
+  [removeBlock11] (M11_STATE=Move) -> 1 : (set11'=set11-b11)&(len11'=len11-1);
 
   [addBlock12] (M12_STATE=Winner)  -> rb : (set11'=set11+b12)&(len11'=len11+1)&(set13'=set13+b12)&(len13'=len13+1);
-  [removeBlock12] (M12_STATE=Lost) -> 1 : (set12'=set12-b12)&(len12'=len12-1);
+  [removeBlock12] (M12_STATE=Move) -> 1 : (set12'=set12-b12)&(len12'=len12-1);
 
   [addBlock13] (M13_STATE=Winner)  -> rb : (set12'=set12+b13)&(len12'=len12+1)&(set14'=set14+b13)&(len14'=len14+1);
-  [removeBlock13] (M13_STATE=Lost) -> 1 : (set13'=set13-b13)&(len13'=len13-1);
+  [removeBlock13] (M13_STATE=Move) -> 1 : (set13'=set13-b13)&(len13'=len13-1);
 
   [addBlock14] (M14_STATE=Winner)  -> rb : (set13'=set13+b14)&(len13'=len13+1)&(set15'=set15+b14)&(len15'=len15+1);
-  [removeBlock14] (M14_STATE=Lost) -> 1 : (set14'=set14-b14)&(len14'=len14-1);
+  [removeBlock14] (M14_STATE=Move) -> 1 : (set14'=set14-b14)&(len14'=len14-1);
 
   [addBlock15] (M15_STATE=Winner)  -> rb : (set14'=set14+b15)&(len14'=len14+1)&(set'=set+b15)&(len'=len+1);
-  [removeBlock15] (M15_STATE=Lost) -> 1 : (set15'=set15-b15)&(len15'=len15-1);
+  [removeBlock15] (M15_STATE=Move) -> 1 : (set15'=set15-b15)&(len15'=len15-1);
 
 endmodule
 
