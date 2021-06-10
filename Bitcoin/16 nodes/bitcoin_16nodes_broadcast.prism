@@ -645,7 +645,7 @@ module Global
 
 	diff : [0..N] init 0;
 
-	[] (M_STATE = Add) -> 1 : (diff'=calculateFork(B,B1,B2,B3,B4,B5,B6,B7,B8,B9,B10,B11,B12,B13,B14,B15));
+	[] (M_STATE = Add) | (M1_STATE = Add) | (M2_STATE = Add) | (M3_STATE = Add) | (M4_STATE = Add) | (M5_STATE = Add) | (M6_STATE = Add) | (M7_STATE = Add) | (M8_STATE = Add) | (M_STATE = Add) | (M9_STATE = Add) | (M10_STATE = Add) | (M11_STATE = Add) | (M12_STATE = Add) | (M13_STATE = Add) | (M14_STATE = Add) | (M15_STATE = Add) -> 1 : (diff'=calculateFork(B,B1,B2,B3,B4,B5,B6,B7,B8,B9,B10,B11,B12,B13,B14,B15));
 
 endmodule
 
