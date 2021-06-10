@@ -644,39 +644,8 @@ endmodule
 module Global
 
 	diff : [0..N] init 0;
-	diff1 : [0..N] init 0;
-	diff2 : [0..N] init 0;
-	diff3 : [0..N] init 0;
-	diff4 : [0..N] init 0;
-  diff5 : [0..N] init 0;
-  diff6 : [0..N] init 0;
-  diff7 : [0..N] init 0;
-  diff8 : [0..N] init 0;
-  diff9 : [0..N] init 0;
-  diff10 : [0..N] init 0;
-  diff11 : [0..N] init 0;
-  diff12 : [0..N] init 0;
-  diff13 : [0..N] init 0;
-  diff14 : [0..N] init 0;
-  diff15 : [0..N] init 0;
 
-
-	[] (M_STATE = Add) -> 1 : (diff'=max(B-B1,B-B2,B-B3,B-B4,B-B5,B-B6,B-B7,B-B8,B-B9,B-B10,B-B11,B-B12,B-B13,B-B14,B-B15));
-	[] (M1_STATE = Add) -> 1 : (diff1'=max(B1-B,B1-B2,B1-B3,B1-B4,B1-B5,B1-B6,B1-B7,B1-B8,B1-B9,B1-B10,B1-B11,B1-B12,B1-B13,B1-B14,B1-B15));
-	[] (M2_STATE = Add) -> 1 : (diff2'=max(B2-B1,B2-B,B2-B3,B2-B4,B2-B5,B2-B6,B2-B7,B2-B8,B2-B9,B2-B10,B2-B11,B2-B12,B2-B13,B2-B14,B2-B15));
-	[] (M3_STATE = Add) -> 1 : (diff3'=max(B3-B1,B3-B2,B3-B,B3-B4,B3-B5,B3-B6,B3-B7,B3-B8,B3-B9,B3-B10,B3-B11,B3-B12,B3-B13,B3-B14,B3-B15));
-	[] (M4_STATE = Add) -> 1 : (diff4'=max(B4-B1,B4-B2,B4-B3,B4-B,B4-B5,B4-B6,B4-B7,B4-B8,B4-B9,B4-B10,B4-B11,B4-B12,B4-B13,B4-B14,B4-B15));
-  [] (M5_STATE = Add) -> 1 : (diff5'=max(B5-B1,B5-B2,B5-B3,B5-B4,B5-B,B5-B6,B5-B7,B5-B8,B5-B9,B5-B10,B5-B11,B5-B12,B5-B13,B5-B14,B5-B15));
-  [] (M6_STATE = Add) -> 1 : (diff6'=max(B6-B1,B6-B2,B6-B3,B6-B4,B6-B5,B6-B,B6-B7,B6-B8,B6-B9,B6-B10,B6-B11,B6-B12,B6-B13,B6-B14,B6-B15));
-  [] (M7_STATE = Add) -> 1 : (diff7'=max(B7-B1,B7-B2,B7-B3,B7-B4,B7-B5,B7-B6,B7-B,B7-B8,B7-B9,B7-B10,B7-B11,B7-B12,B7-B13,B7-B14,B7-B15));
-  [] (M8_STATE = Add) -> 1 : (diff8'=max(B8-B1,B8-B2,B8-B3,B8-B4,B8-B5,B8-B6,B8-B7,B8-B,B8-B9,B8-B10,B8-B11,B8-B12,B8-B13,B8-B14,B8-B15));
-  [] (M9_STATE = Add) -> 1 : (diff9'=max(B9-B1,B9-B2,B9-B3,B9-B4,B9-B5,B9-B6,B9-B7,B9-B8,B9-B,B9-B10,B9-B11,B9-B12,B9-B13,B9-B14,B9-B15));
-  [] (M10_STATE = Add) -> 1 : (diff10'=max(B10-B1,B10-B2,B10-B3,B10-B4,B10-B5,B10-B6,B10-B7,B10-B8,B10-B9,B10-B,B10-B11,B10-B12,B10-B13,B10-B14,B10-B15));
-  [] (M11_STATE = Add) -> 1 : (diff11'=max(B11-B1,B11-B2,B11-B3,B11-B4,B11-B5,B11-B6,B11-B7,B11-B8,B11-B9,B11-B10,B11-B,B11-B12,B11-B13,B11-B14,B11-B15));
-  [] (M12_STATE = Add) -> 1 : (diff12'=max(B12-B1,B12-B2,B12-B3,B12-B4,B12-B5,B12-B6,B12-B7,B12-B8,B12-B9,B12-B10,B12-B11,B12-B,B12-B13,B12-B14,B12-B15));
-  [] (M13_STATE = Add) -> 1 : (diff13'=max(B13-B1,B13-B2,B13-B3,B13-B4,B13-B5,B13-B6,B13-B7,B13-B8,B13-B9,B13-B10,B13-B11,B13-B12,B13-B,B13-B14,B13-B15));
-  [] (M14_STATE = Add) -> 1 : (diff14'=max(B14-B1,B14-B2,B14-B3,B14-B4,B14-B5,B14-B6,B14-B7,B14-B8,B14-B9,B14-B10,B14-B11,B14-B12,B14-B13,B14-B,B14-B15));
-  [] (M15_STATE = Add) -> 1 : (diff15'=max(B15-B1,B15-B2,B15-B3,B15-B4,B15-B5,B15-B6,B15-B7,B15-B8,B15-B9,B15-B10,B15-B11,B15-B12,B15-B13,B15-B14,B15-B));
+	[] (M_STATE = Add) -> 1 : (diff'=calculateFork(B,B1,B2,B3,B4,B5,B6,B7,B8,B9,B10,B11,B12,B13,B14,B15));
 
 endmodule
 
