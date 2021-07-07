@@ -815,6 +815,6 @@ module Network
 
 endmodule
 
-label "mining" = M_STATE = Winner | M1_STATE = Winner | M2_STATE = Winner |  M3_STATE = Winner |  M4_STATE = Winner |  M5_STATE = Winner |  M6_STATE = Winner |  M7_STATE = Winner |  M8_STATE = Winner |  M9_STATE = Winner |  M10_STATE = Winner |  M11_STATE = Winner |  M12_STATE = Winner;
+label "winner" = M_STATE = Winner | M1_STATE = Winner | M2_STATE = Winner |  M3_STATE = Winner |  M4_STATE = Winner |  M5_STATE = Winner |  M6_STATE = Winner |  M7_STATE = Winner |  M8_STATE = Winner |  M9_STATE = Winner |  M10_STATE = Winner |  M11_STATE = Winner |  M12_STATE = Winner;
 label "someJustified" = justified0 = true | justified1 = true | justified2 = true | justified3 = true | justified4 = true | justified5 = true | justified6 = true | justified7 = true | justified8 = true | justified9 = true | justified10 = true | justified11 = true | justified12 = true;
 label "someFinalized" = finalized0 = true | finalized1 = true | finalized2 = true | finalized3 = true | finalized4 = true | finalized5 = true | finalized6 = true | finalized7 = true | finalized8 = true | finalized9 = true | finalized10 = true | finalized11 = true | finalized12 = true;
