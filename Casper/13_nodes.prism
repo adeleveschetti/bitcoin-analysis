@@ -615,6 +615,15 @@ module Validator12
 
 endmodule
 
+module Global
+
+	Global_STATE : [0..2] init 0;
+	lenFork : [0..N] init 0;
+
+	[] (M_STATE=Start) | (M1_STATE=Start) | (M2_STATE=Start) | (M3_STATE=Start) | (M4_STATE=Start) | (M5_STATE=Start) | (M6_STATE=Start) | (M7_STATE=Start) | (M8_STATE=Start) | (M9_STATE=Start) | (M10_STATE=Start) | (M11_STATE=Start) | (M12_STATE=Start) -> r : (lenFork'=calculateFork(B,B1,B2,B3,B4,B5,B6,B7,B8,B9,B10,B11,B12));
+
+endmodule
+
 module Updater
 
     Updater_STATE : [0..1] init 0;
@@ -826,3 +835,7 @@ module Network
     [extractBlock12] (M12_STATE=Move) -> r : (set12'=removeBlock(set12,b12));
 
 endmodule
+
+label "mining" = M_STATE = Winner | M1_STATE = Winner | M2_STATE = Winner |  M3_STATE = Winner |  M4_STATE = Winner |  M5_STATE = Winner |  M6_STATE = Winner |  M7_STATE = Winner |  M8_STATE = Winner |  M9_STATE = Winner |  M10_STATE = Winner |  M11_STATE = Winner |  M12_STATE = Winner;
+label "someJustified" = justified0 = true | justified1 = true | justified2 = true | justified3 = true | justified4 = true | justified5 = true | justified6 = true | justified7 = true | justified8 = true | justified9 = true | justified10 = true | justified11 = true | justified12 = true;
+label "someFinalized" = finalized0 = true | finalized1 = true | finalized2 = true | finalized3 = true | finalized4 = true | finalized5 = true | finalized6 = true | finalized7 = true | finalized8 = true | finalized9 = true | finalized10 = true | finalized11 = true | finalized12 = true;
