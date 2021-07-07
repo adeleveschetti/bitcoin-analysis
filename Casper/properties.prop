@@ -2,7 +2,7 @@
 P=?[F<=T lenFork=k]
 
 // probability of mining
-P=?[F<=T "mining"]
+P=?[F<=T "winner"]
 
 // probability of finalizing
 P=?[F<=T "someFinalized"]
