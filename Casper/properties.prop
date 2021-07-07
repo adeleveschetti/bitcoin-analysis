@@ -5,7 +5,7 @@ P=?[F<=T lenFork=k]
 P=?[F<=T "mining"]
 
 // probability of finalizing
-P=?[F<=T "fin2"]
+P=?[F<=T "someFinalized"]
 
 // probability of justifing
 P=?[F<=T "someJustified"]
