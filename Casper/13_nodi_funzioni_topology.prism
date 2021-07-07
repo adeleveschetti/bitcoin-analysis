@@ -1,0 +1,814 @@
+ctmc
+
+const int EpochSize ;
+const k;
+const double rMw ; // delay blocchi
+const epochs;
+const double T=epochs*EpochSize*(1/p);
+
+
+// 14 s per blocco
+// 12 s slot
+// 32 slot/epoca -> 384 s
+// epoch_vote_period : 64 epoche -> 13056 s
+// delay : 12.6 s (Bitcoin)
+const int time;
+const double mR = 1/time; // rate creazione blocco
+const double lR = 1-mR;
+
+const double rC = 1/(14*EpochSize);
+const double rIst = 100;
+const double r = 1;
+const double rateVote ;
+const double p =1/14;
+const double np = 10;
+
+
+
+const int HasherRes = 0;
+
+const int Start = 0;
+const int Height = 1;
+const int Winner = 2;
+const int Lost = 3;
+const int Move = 4;
+const int Add = 5;
+const int Vote = 6;
+const int Check = 7;
+const int Fin = 8;
+
+
+const int N = 100;
+
+
+module Validator0
+
+	M0_STATE : [Start..Fin] init Start;
+	b0 : block {m0,0;genesis,0};
+	B0 : blockchain [{genesis,0;genesis,0}];
+	c0 : [0..N] init 0;
+	tmp0 : [0..3] init 0;
+	votes0 : [0..1000] init 0;
+	height0 : [0..N] init 0;
+	lastFinalized0 : block {genesis,0;genesis,0};
+	lastJustified0 : block {genesis,0;genesis,0};
+  	lastCheck0 : block {genesis,0;genesis,0};
+	heightCheckpoint0 : [0..N] init 0;
+  	heightLast0 : [0..N] init 0;
+	listCheckpoints0 : list [];
+	lenListCheck0 : [0..N] init 0;
+	numFinBlocks0 : [0..N] init 0;
+	finalized0 : bool init false;
+	justified0 : bool init false;
+	succAttack0 : bool init false;
+
+  	[] (M0_STATE=Start) -> p : (justified0'=false)&(b0'=createB(lastJustified0,B0,c0))&(c0'=c0+1)&(M0_STATE'=Winner);
+  	[] (M0_STATE=Start) -> np : (M0_STATE'=Lost);
+  	[] (M0_STATE=Start)&(!isEmpty(listCheckpoints0)) -> rC :  (lastCheck0'=extractCheckpoint(listCheckpoints0,lastCheck0))&(heightLast0'=getHeight(extractCheckpoint(listCheckpoints0,lastCheck0)))&(votes0'=calcVotes(voti,extractCheckpoint(listCheckpoints0,lastCheck0)))&(M0_STATE'=Check);
+
+  	[addBlock0] (M0_STATE=Winner) -> rMw: (B0'=addBlock(B0,b0))&(M0_STATE'=(mod(getHeight(b0),EpochSize)=0)?Vote:Start)&(height0'=getHeight(b0));
+
+  	[] (M0_STATE=Lost)&(!isEmpty(set0)) -> 1 : (b0'=extractBlock(set0))&(M0_STATE'=Move);
+  	[] (M0_STATE=Lost)&(isEmpty(set0)) -> 1 : (M0_STATE'=Start);
+
+  	[extractBlock0] (M0_STATE=Move)&(canBeInserted(B0,b0)) -> 1:(B0'=addBlock(B0,b0))&(M0_STATE'=((mod(getHeight(b0),EpochSize)=0)&(getHeight(b0)>heightCheckpoint0))?Vote:Start);
+  	[] (M0_STATE=Move)&(!canBeInserted(B0,b0)) -> rIst:(M0_STATE'=Start);
+
+  	[voteBlock0] (M0_STATE=Vote) -> 1 : (listCheckpoints0'=addBlockSet(listCheckpoints0,b0))&(M0_STATE'=Start);
+
+  	[] (M0_STATE=Check)&(votes0>=2/3*tot_stake)&(heightLast0=heightCheckpoint0+EpochSize) -> rIst : (numFinBlocks0'=numFinBlocks0+1)&(lastFinalized0'=lastJustified0)&(lastJustified0'=lastCheck0)&(succAttack0'=((!lastCheck0)=true)?true:false)&(heightCheckpoint0'=heightLast0)&(listCheckpoints0'=removeBlock(listCheckpoints0,lastCheck0))&(B0'=updateHF(B0,lastJustified0))&(M0_STATE'=Fin)&(tmp0'=0)&(justified0'=true)&(finalized0'=(heightLast0=EpochSize)?false:true);
+  	[] (M0_STATE=Check)&(votes0>=2/3*tot_stake)&(heightLast0!=heightCheckpoint0+EpochSize)&(heightLast0>heightCheckpoint0) -> rIst : (lastJustified0'=lastCheck0)&(heightCheckpoint0'=heightLast0)&(succAttack0'=((!lastCheck0)=true)?true:false)&(listCheckpoints0'=removeBlock(listCheckpoints0,lastCheck0))&(M0_STATE'=Start)&(tmp0'=0)&(B0'=updateJust(B0,lastJustified0))&(justified0'=true);
+	[] (M0_STATE=Check)&((votes0<=2/3*tot_stake)&(heightLast0<=heightCheckpoint0)|((votes0>=2/3*tot_stake)&(heightLast0<=heightCheckpoint0))) -> rIst: (listCheckpoints0'=removeBlock(listCheckpoints0,lastCheck0))&(M0_STATE'=Start)&(tmp0'=0);
+	[] (M0_STATE=Check)&(votes0<=2/3*tot_stake)&(heightLast0>heightCheckpoint0) -> rIst: (M0_STATE'=Start)&(tmp0'=0);
+	[finBlock0] (M0_STATE=Fin) -> 1:(finalized0'=false)&(justified0'=false)&(M0_STATE'=Start);
+
+endmodule
+
+module Validator1
+
+	M1_STATE : [Start..Fin] init Start;
+	b1 : block {m1,0;genesis,0};
+	B1 : blockchain [{genesis,0;genesis,0}];
+	c1 : [0..N] init 0;
+	tmp1 : [0..3] init 0;
+	votes1 : [0..1000] init 0;
+	height1 : [0..N] init 0;
+	lastFinalized1 : block {genesis,0;genesis,0};
+	lastJustified1 : block {genesis,0;genesis,0};
+  	lastCheck1 : block {genesis,0;genesis,0};
+	heightCheckpoint1 : [0..N] init 0;
+  	heightLast1 : [0..N] init 0;
+	listCheckpoints1 : list [];
+	lenListCheck1 : [0..N] init 0;
+	numFinBlocks1 : [0..N] init 0;
+	finalized1 : bool init false;
+	justified1 : bool init false;
+	succAttack1 : bool init false;
+
+  	[] (M1_STATE=Start) -> p : (justified1'=false)&(b1'=createB(lastJustified1,B1,c1))&(c1'=c1+1)&(M1_STATE'=Winner);
+  	[] (M1_STATE=Start) -> np : (M1_STATE'=Lost);
+  	[] (M1_STATE=Start)&(!isEmpty(listCheckpoints1)) -> rC :  (lastCheck1'=extractCheckpoint(listCheckpoints1,lastCheck1))&(heightLast1'=getHeight(extractCheckpoint(listCheckpoints1,lastCheck1)))&(votes1'=calcVotes(voti,extractCheckpoint(listCheckpoints1,lastCheck1)))&(M1_STATE'=Check);
+
+  	[addBlock1] (M1_STATE=Winner) -> rMw: (B1'=addBlock(B1,b1))&(M1_STATE'=(mod(getHeight(b1),EpochSize)=0)?Vote:Start)&(height1'=getHeight(b1));
+
+  	[] (M1_STATE=Lost)&(!isEmpty(set1)) -> 1 : (b1'=extractBlock(set1))&(M1_STATE'=Move);
+  	[] (M1_STATE=Lost)&(isEmpty(set1)) -> 1 : (M1_STATE'=Start);
+
+  	[extractBlock1] (M1_STATE=Move)&(canBeInserted(B1,b1)) -> 1:(B1'=addBlock(B1,b1))&(M1_STATE'=((mod(getHeight(b1),EpochSize)=0)&(getHeight(b1)>heightCheckpoint1))?Vote:Start);
+  	[] (M1_STATE=Move)&(!canBeInserted(B1,b1)) -> rIst:(M1_STATE'=Start);
+
+  	[voteBlock1] (M1_STATE=Vote) -> 1 : (listCheckpoints1'=addBlockSet(listCheckpoints1,b1))&(M1_STATE'=Start);
+
+  	[] (M1_STATE=Check)&(votes1>=2/3*tot_stake)&(heightLast1=heightCheckpoint1+EpochSize) -> rIst : (numFinBlocks1'=numFinBlocks1+1)&(lastFinalized1'=lastJustified1)&(lastJustified1'=lastCheck1)&(succAttack1'=((!lastCheck1)=true)?true:false)&(heightCheckpoint1'=heightLast1)&(listCheckpoints1'=removeBlock(listCheckpoints1,lastCheck1))&(B1'=updateHF(B1,lastJustified1))&(M1_STATE'=Fin)&(tmp1'=0)&(justified1'=true)&(finalized1'=(heightLast1=EpochSize)?false:true);
+  	[] (M1_STATE=Check)&(votes1>=2/3*tot_stake)&(heightLast1!=heightCheckpoint1+EpochSize)&(heightLast1>heightCheckpoint1) -> rIst : (lastJustified1'=lastCheck1)&(heightCheckpoint1'=heightLast1)&(succAttack1'=((!lastCheck1)=true)?true:false)&(listCheckpoints1'=removeBlock(listCheckpoints1,lastCheck1))&(M1_STATE'=Start)&(tmp1'=0)&(B1'=updateJust(B1,lastJustified1))&(justified1'=true);
+	[] (M1_STATE=Check)&((votes1<=2/3*tot_stake)&(heightLast1<=heightCheckpoint1)|((votes1>=2/3*tot_stake)&(heightLast1<=heightCheckpoint1))) -> rIst: (listCheckpoints1'=removeBlock(listCheckpoints1,lastCheck1))&(M1_STATE'=Start)&(tmp1'=0);
+	[] (M1_STATE=Check)&(votes1<=2/3*tot_stake)&(heightLast1>heightCheckpoint1) -> rIst: (M1_STATE'=Start)&(tmp1'=0);
+	[finBlock1] (M1_STATE=Fin) -> 1:(finalized1'=false)&(justified1'=false)&(M1_STATE'=Start);
+
+endmodule
+
+module Validator2
+
+	M2_STATE : [Start..Fin] init Start;
+	b2 : block {m2,0;genesis,0};
+	B2 : blockchain [{genesis,0;genesis,0}];
+	c2 : [0..N] init 0;
+	tmp2 : [0..3] init 0;
+	votes2 : [0..1000] init 0;
+	height2 : [0..N] init 0;
+	lastFinalized2 : block {genesis,0;genesis,0};
+	lastJustified2 : block {genesis,0;genesis,0};
+  	lastCheck2 : block {genesis,0;genesis,0};
+	heightCheckpoint2 : [0..N] init 0;
+  	heightLast2 : [0..N] init 0;
+	listCheckpoints2 : list [];
+	lenListCheck2 : [0..N] init 0;
+	numFinBlocks2 : [0..N] init 0;
+	finalized2 : bool init false;
+	justified2 : bool init false;
+	succAttack2 : bool init false;
+
+  	[] (M2_STATE=Start) -> p : (justified2'=false)&(b2'=createB(lastJustified2,B2,c2))&(c2'=c2+1)&(M2_STATE'=Winner);
+  	[] (M2_STATE=Start) -> np : (M2_STATE'=Lost);
+  	[] (M2_STATE=Start)&(!isEmpty(listCheckpoints2)) -> rC :  (lastCheck2'=extractCheckpoint(listCheckpoints2,lastCheck2))&(heightLast2'=getHeight(extractCheckpoint(listCheckpoints2,lastCheck2)))&(votes2'=calcVotes(voti,extractCheckpoint(listCheckpoints2,lastCheck2)))&(M2_STATE'=Check);
+
+  	[addBlock2] (M2_STATE=Winner) -> rMw: (B2'=addBlock(B2,b2))&(M2_STATE'=(mod(getHeight(b2),EpochSize)=0)?Vote:Start)&(height2'=getHeight(b2));
+
+  	[] (M2_STATE=Lost)&(!isEmpty(set2)) -> 1 : (b2'=extractBlock(set2))&(M2_STATE'=Move);
+  	[] (M2_STATE=Lost)&(isEmpty(set2)) -> 1 : (M2_STATE'=Start);
+
+  	[extractBlock2] (M2_STATE=Move)&(canBeInserted(B2,b2)) -> 1:(B2'=addBlock(B2,b2))&(M2_STATE'=((mod(getHeight(b2),EpochSize)=0)&(getHeight(b2)>heightCheckpoint2))?Vote:Start);
+  	[] (M2_STATE=Move)&(!canBeInserted(B2,b2)) -> rIst:(M2_STATE'=Start);
+
+  	[voteBlock2] (M2_STATE=Vote) -> 1 : (listCheckpoints2'=addBlockSet(listCheckpoints2,b2))&(M2_STATE'=Start);
+
+  	[] (M2_STATE=Check)&(votes2>=2/3*tot_stake)&(heightLast2=heightCheckpoint2+EpochSize) -> rIst : (numFinBlocks2'=numFinBlocks2+1)&(lastFinalized2'=lastJustified2)&(lastJustified2'=lastCheck2)&(succAttack2'=((!lastCheck2)=true)?true:false)&(heightCheckpoint2'=heightLast2)&(listCheckpoints2'=removeBlock(listCheckpoints2,lastCheck2))&(B2'=updateHF(B2,lastJustified2))&(M2_STATE'=Fin)&(tmp2'=0)&(justified2'=true)&(finalized2'=(heightLast2=EpochSize)?false:true);
+  	[] (M2_STATE=Check)&(votes2>=2/3*tot_stake)&(heightLast2!=heightCheckpoint2+EpochSize)&(heightLast2>heightCheckpoint2) -> rIst : (lastJustified2'=lastCheck2)&(heightCheckpoint2'=heightLast2)&(succAttack2'=((!lastCheck2)=true)?true:false)&(listCheckpoints2'=removeBlock(listCheckpoints2,lastCheck2))&(M2_STATE'=Start)&(tmp2'=0)&(B2'=updateJust(B2,lastJustified2))&(justified2'=true);
+	[] (M2_STATE=Check)&((votes2<=2/3*tot_stake)&(heightLast2<=heightCheckpoint2)|((votes2>=2/3*tot_stake)&(heightLast2<=heightCheckpoint2))) -> rIst: (listCheckpoints2'=removeBlock(listCheckpoints2,lastCheck2))&(M2_STATE'=Start)&(tmp2'=0);
+	[] (M2_STATE=Check)&(votes2<=2/3*tot_stake)&(heightLast2>heightCheckpoint2) -> rIst: (M2_STATE'=Start)&(tmp2'=0);
+	[finBlock2] (M2_STATE=Fin) -> 1:(finalized2'=false)&(justified2'=false)&(M2_STATE'=Start);
+
+endmodule
+
+module Validator3
+
+	M3_STATE : [Start..Fin] init Start;
+	b3 : block {m3,0;genesis,0};
+	B3 : blockchain [{genesis,0;genesis,0}];
+	c3 : [0..N] init 0;
+	tmp3 : [0..3] init 0;
+	votes3 : [0..1000] init 0;
+	height3 : [0..N] init 0;
+	lastFinalized3 : block {genesis,0;genesis,0};
+	lastJustified3 : block {genesis,0;genesis,0};
+  	lastCheck3 : block {genesis,0;genesis,0};
+	heightCheckpoint3 : [0..N] init 0;
+  	heightLast3 : [0..N] init 0;
+	listCheckpoints3 : list [];
+	lenListCheck3 : [0..N] init 0;
+	numFinBlocks3 : [0..N] init 0;
+	finalized3 : bool init false;
+	justified3 : bool init false;
+	succAttack3 : bool init false;
+
+  	[] (M3_STATE=Start) -> p : (justified3'=false)&(b3'=createB(lastJustified3,B3,c3))&(c3'=c3+1)&(M3_STATE'=Winner);
+  	[] (M3_STATE=Start) -> np : (M3_STATE'=Lost);
+  	[] (M3_STATE=Start)&(!isEmpty(listCheckpoints3)) -> rC :  (lastCheck3'=extractCheckpoint(listCheckpoints3,lastCheck3))&(heightLast3'=getHeight(extractCheckpoint(listCheckpoints3,lastCheck3)))&(votes3'=calcVotes(voti,extractCheckpoint(listCheckpoints3,lastCheck3)))&(M3_STATE'=Check);
+
+  	[addBlock3] (M3_STATE=Winner) -> rMw: (B3'=addBlock(B3,b3))&(M3_STATE'=(mod(getHeight(b3),EpochSize)=0)?Vote:Start)&(height3'=getHeight(b3));
+
+  	[] (M3_STATE=Lost)&(!isEmpty(set3)) -> 1 : (b3'=extractBlock(set3))&(M3_STATE'=Move);
+  	[] (M3_STATE=Lost)&(isEmpty(set3)) -> 1 : (M3_STATE'=Start);
+
+  	[extractBlock3] (M3_STATE=Move)&(canBeInserted(B3,b3)) -> 1:(B3'=addBlock(B3,b3))&(M3_STATE'=((mod(getHeight(b3),EpochSize)=0)&(getHeight(b3)>heightCheckpoint3))?Vote:Start);
+  	[] (M3_STATE=Move)&(!canBeInserted(B3,b3)) -> rIst:(M3_STATE'=Start);
+
+  	[voteBlock3] (M3_STATE=Vote) -> 1 : (listCheckpoints3'=addBlockSet(listCheckpoints3,b3))&(M3_STATE'=Start);
+
+  	[] (M3_STATE=Check)&(votes3>=2/3*tot_stake)&(heightLast3=heightCheckpoint3+EpochSize) -> rIst : (numFinBlocks3'=numFinBlocks3+1)&(lastFinalized3'=lastJustified3)&(lastJustified3'=lastCheck3)&(succAttack3'=((!lastCheck3)=true)?true:false)&(heightCheckpoint3'=heightLast3)&(listCheckpoints3'=removeBlock(listCheckpoints3,lastCheck3))&(B3'=updateHF(B3,lastJustified3))&(M3_STATE'=Fin)&(tmp3'=0)&(justified3'=true)&(finalized3'=(heightLast3=EpochSize)?false:true);
+  	[] (M3_STATE=Check)&(votes3>=2/3*tot_stake)&(heightLast3!=heightCheckpoint3+EpochSize)&(heightLast3>heightCheckpoint3) -> rIst : (lastJustified3'=lastCheck3)&(heightCheckpoint3'=heightLast3)&(succAttack3'=((!lastCheck3)=true)?true:false)&(listCheckpoints3'=removeBlock(listCheckpoints3,lastCheck3))&(M3_STATE'=Start)&(tmp3'=0)&(B3'=updateJust(B3,lastJustified3))&(justified3'=true);
+	[] (M3_STATE=Check)&((votes3<=2/3*tot_stake)&(heightLast3<=heightCheckpoint3)|((votes3>=2/3*tot_stake)&(heightLast3<=heightCheckpoint3))) -> rIst: (listCheckpoints3'=removeBlock(listCheckpoints3,lastCheck3))&(M3_STATE'=Start)&(tmp3'=0);
+	[] (M3_STATE=Check)&(votes3<=2/3*tot_stake)&(heightLast3>heightCheckpoint3) -> rIst: (M3_STATE'=Start)&(tmp3'=0);
+	[finBlock3] (M3_STATE=Fin) -> 1:(finalized3'=false)&(justified3'=false)&(M3_STATE'=Start);
+
+endmodule
+
+module Validator4
+
+	M4_STATE : [Start..Fin] init Start;
+	b4 : block {m4,0;genesis,0};
+	B4 : blockchain [{genesis,0;genesis,0}];
+	c4 : [0..N] init 0;
+	tmp4 : [0..3] init 0;
+	votes4 : [0..1000] init 0;
+	height4 : [0..N] init 0;
+	lastFinalized4 : block {genesis,0;genesis,0};
+	lastJustified4 : block {genesis,0;genesis,0};
+  	lastCheck4 : block {genesis,0;genesis,0};
+	heightCheckpoint4 : [0..N] init 0;
+  	heightLast4 : [0..N] init 0;
+	listCheckpoints4 : list [];
+	lenListCheck4 : [0..N] init 0;
+	numFinBlocks4 : [0..N] init 0;
+	finalized4 : bool init false;
+	justified4 : bool init false;
+	succAttack4 : bool init false;
+
+  	[] (M4_STATE=Start) -> p : (justified4'=false)&(b4'=createB(lastJustified4,B4,c4))&(c4'=c4+1)&(M4_STATE'=Winner);
+  	[] (M4_STATE=Start) -> np : (M4_STATE'=Lost);
+  	[] (M4_STATE=Start)&(!isEmpty(listCheckpoints4)) -> rC :  (lastCheck4'=extractCheckpoint(listCheckpoints4,lastCheck4))&(heightLast4'=getHeight(extractCheckpoint(listCheckpoints4,lastCheck4)))&(votes4'=calcVotes(voti,extractCheckpoint(listCheckpoints4,lastCheck4)))&(M4_STATE'=Check);
+
+  	[addBlock4] (M4_STATE=Winner) -> rMw: (B4'=addBlock(B4,b4))&(M4_STATE'=(mod(getHeight(b4),EpochSize)=0)?Vote:Start)&(height4'=getHeight(b4));
+
+  	[] (M4_STATE=Lost)&(!isEmpty(set4)) -> 1 : (b4'=extractBlock(set4))&(M4_STATE'=Move);
+  	[] (M4_STATE=Lost)&(isEmpty(set4)) -> 1 : (M4_STATE'=Start);
+
+  	[extractBlock4] (M4_STATE=Move)&(canBeInserted(B4,b4)) -> 1:(B4'=addBlock(B4,b4))&(M4_STATE'=((mod(getHeight(b4),EpochSize)=0)&(getHeight(b4)>heightCheckpoint4))?Vote:Start);
+  	[] (M4_STATE=Move)&(!canBeInserted(B4,b4)) -> rIst:(M4_STATE'=Start);
+
+  	[voteBlock4] (M4_STATE=Vote) -> 1 : (listCheckpoints4'=addBlockSet(listCheckpoints4,b4))&(M4_STATE'=Start);
+
+  	[] (M4_STATE=Check)&(votes4>=2/3*tot_stake)&(heightLast4=heightCheckpoint4+EpochSize) -> rIst : (numFinBlocks4'=numFinBlocks4+1)&(lastFinalized4'=lastJustified4)&(lastJustified4'=lastCheck4)&(succAttack4'=((!lastCheck4)=true)?true:false)&(heightCheckpoint4'=heightLast4)&(listCheckpoints4'=removeBlock(listCheckpoints4,lastCheck4))&(B4'=updateHF(B4,lastJustified4))&(M4_STATE'=Fin)&(tmp4'=0)&(justified4'=true)&(finalized4'=(heightLast4=EpochSize)?false:true);
+  	[] (M4_STATE=Check)&(votes4>=2/3*tot_stake)&(heightLast4!=heightCheckpoint4+EpochSize)&(heightLast4>heightCheckpoint4) -> rIst : (lastJustified4'=lastCheck4)&(heightCheckpoint4'=heightLast4)&(succAttack4'=((!lastCheck4)=true)?true:false)&(listCheckpoints4'=removeBlock(listCheckpoints4,lastCheck4))&(M4_STATE'=Start)&(tmp4'=0)&(B4'=updateJust(B4,lastJustified4))&(justified4'=true);
+	[] (M4_STATE=Check)&((votes4<=2/3*tot_stake)&(heightLast4<=heightCheckpoint4)|((votes4>=2/3*tot_stake)&(heightLast4<=heightCheckpoint4))) -> rIst: (listCheckpoints4'=removeBlock(listCheckpoints4,lastCheck4))&(M4_STATE'=Start)&(tmp4'=0);
+	[] (M4_STATE=Check)&(votes4<=2/3*tot_stake)&(heightLast4>heightCheckpoint4) -> rIst: (M4_STATE'=Start)&(tmp4'=0);
+	[finBlock4] (M4_STATE=Fin) -> 1:(finalized4'=false)&(justified4'=false)&(M4_STATE'=Start);
+
+endmodule
+
+module Validator5
+
+	M5_STATE : [Start..Fin] init Start;
+	b5 : block {m5,0;genesis,0};
+	B5 : blockchain [{genesis,0;genesis,0}];
+	c5 : [0..N] init 0;
+	tmp5 : [0..3] init 0;
+	votes5 : [0..1000] init 0;
+	height5 : [0..N] init 0;
+	lastFinalized5 : block {genesis,0;genesis,0};
+	lastJustified5 : block {genesis,0;genesis,0};
+  	lastCheck5 : block {genesis,0;genesis,0};
+	heightCheckpoint5 : [0..N] init 0;
+  	heightLast5 : [0..N] init 0;
+	listCheckpoints5 : list [];
+	lenListCheck5 : [0..N] init 0;
+	numFinBlocks5 : [0..N] init 0;
+	finalized5 : bool init false;
+	justified5 : bool init false;
+	succAttack5 : bool init false;
+
+  	[] (M5_STATE=Start) -> p : (justified5'=false)&(b5'=createB(lastJustified5,B5,c5))&(c5'=c5+1)&(M5_STATE'=Winner);
+  	[] (M5_STATE=Start) -> np : (M5_STATE'=Lost);
+  	[] (M5_STATE=Start)&(!isEmpty(listCheckpoints5)) -> rC :  (lastCheck5'=extractCheckpoint(listCheckpoints5,lastCheck5))&(heightLast5'=getHeight(extractCheckpoint(listCheckpoints5,lastCheck5)))&(votes5'=calcVotes(voti,extractCheckpoint(listCheckpoints5,lastCheck5)))&(M5_STATE'=Check);
+
+  	[addBlock5] (M5_STATE=Winner) -> rMw: (B5'=addBlock(B5,b5))&(M5_STATE'=(mod(getHeight(b5),EpochSize)=0)?Vote:Start)&(height5'=getHeight(b5));
+
+  	[] (M5_STATE=Lost)&(!isEmpty(set5)) -> 1 : (b5'=extractBlock(set5))&(M5_STATE'=Move);
+  	[] (M5_STATE=Lost)&(isEmpty(set5)) -> 1 : (M5_STATE'=Start);
+
+  	[extractBlock5] (M5_STATE=Move)&(canBeInserted(B5,b5)) -> 1:(B5'=addBlock(B5,b5))&(M5_STATE'=((mod(getHeight(b5),EpochSize)=0)&(getHeight(b5)>heightCheckpoint5))?Vote:Start);
+  	[] (M5_STATE=Move)&(!canBeInserted(B5,b5)) -> rIst:(M5_STATE'=Start);
+
+  	[voteBlock5] (M5_STATE=Vote) -> 1 : (listCheckpoints5'=addBlockSet(listCheckpoints5,b5))&(M5_STATE'=Start);
+
+  	[] (M5_STATE=Check)&(votes5>=2/3*tot_stake)&(heightLast5=heightCheckpoint5+EpochSize) -> rIst : (numFinBlocks5'=numFinBlocks5+1)&(lastFinalized5'=lastJustified5)&(lastJustified5'=lastCheck5)&(succAttack5'=((!lastCheck5)=true)?true:false)&(heightCheckpoint5'=heightLast5)&(listCheckpoints5'=removeBlock(listCheckpoints5,lastCheck5))&(B5'=updateHF(B5,lastJustified5))&(M5_STATE'=Fin)&(tmp5'=0)&(justified5'=true)&(finalized5'=(heightLast5=EpochSize)?false:true);
+  	[] (M5_STATE=Check)&(votes5>=2/3*tot_stake)&(heightLast5!=heightCheckpoint5+EpochSize)&(heightLast5>heightCheckpoint5) -> rIst : (lastJustified5'=lastCheck5)&(heightCheckpoint5'=heightLast5)&(succAttack5'=((!lastCheck5)=true)?true:false)&(listCheckpoints5'=removeBlock(listCheckpoints5,lastCheck5))&(M5_STATE'=Start)&(tmp5'=0)&(B5'=updateJust(B5,lastJustified5))&(justified5'=true);
+	[] (M5_STATE=Check)&((votes5<=2/3*tot_stake)&(heightLast5<=heightCheckpoint5)|((votes5>=2/3*tot_stake)&(heightLast5<=heightCheckpoint5))) -> rIst: (listCheckpoints5'=removeBlock(listCheckpoints5,lastCheck5))&(M5_STATE'=Start)&(tmp5'=0);
+	[] (M5_STATE=Check)&(votes5<=2/3*tot_stake)&(heightLast5>heightCheckpoint5) -> rIst: (M5_STATE'=Start)&(tmp5'=0);
+	[finBlock5] (M5_STATE=Fin) -> 1:(finalized5'=false)&(justified5'=false)&(M5_STATE'=Start);
+
+endmodule
+
+module Validator6
+
+	M6_STATE : [Start..Fin] init Start;
+	b6 : block {m6,0;genesis,0};
+	B6 : blockchain [{genesis,0;genesis,0}];
+	c6 : [0..N] init 0;
+	tmp6 : [0..3] init 0;
+	votes6 : [0..1000] init 0;
+	height6 : [0..N] init 0;
+	lastFinalized6 : block {genesis,0;genesis,0};
+	lastJustified6 : block {genesis,0;genesis,0};
+  	lastCheck6 : block {genesis,0;genesis,0};
+	heightCheckpoint6 : [0..N] init 0;
+  	heightLast6 : [0..N] init 0;
+	listCheckpoints6 : list [];
+	lenListCheck6 : [0..N] init 0;
+	numFinBlocks6 : [0..N] init 0;
+	finalized6 : bool init false;
+	justified6 : bool init false;
+	succAttack6 : bool init false;
+
+  	[] (M6_STATE=Start) -> p : (justified6'=false)&(b6'=createB(lastJustified6,B6,c6))&(c6'=c6+1)&(M6_STATE'=Winner);
+  	[] (M6_STATE=Start) -> np : (M6_STATE'=Lost);
+  	[] (M6_STATE=Start)&(!isEmpty(listCheckpoints6)) -> rC :  (lastCheck6'=extractCheckpoint(listCheckpoints6,lastCheck6))&(heightLast6'=getHeight(extractCheckpoint(listCheckpoints6,lastCheck6)))&(votes6'=calcVotes(voti,extractCheckpoint(listCheckpoints6,lastCheck6)))&(M6_STATE'=Check);
+
+  	[addBlock6] (M6_STATE=Winner) -> rMw: (B6'=addBlock(B6,b6))&(M6_STATE'=(mod(getHeight(b6),EpochSize)=0)?Vote:Start)&(height6'=getHeight(b6));
+
+  	[] (M6_STATE=Lost)&(!isEmpty(set6)) -> 1 : (b6'=extractBlock(set6))&(M6_STATE'=Move);
+  	[] (M6_STATE=Lost)&(isEmpty(set6)) -> 1 : (M6_STATE'=Start);
+
+  	[extractBlock6] (M6_STATE=Move)&(canBeInserted(B6,b6)) -> 1:(B6'=addBlock(B6,b6))&(M6_STATE'=((mod(getHeight(b6),EpochSize)=0)&(getHeight(b6)>heightCheckpoint6))?Vote:Start);
+  	[] (M6_STATE=Move)&(!canBeInserted(B6,b6)) -> rIst:(M6_STATE'=Start);
+
+  	[voteBlock6] (M6_STATE=Vote) -> 1 : (listCheckpoints6'=addBlockSet(listCheckpoints6,b6))&(M6_STATE'=Start);
+
+  	[] (M6_STATE=Check)&(votes6>=2/3*tot_stake)&(heightLast6=heightCheckpoint6+EpochSize) -> rIst : (numFinBlocks6'=numFinBlocks6+1)&(lastFinalized6'=lastJustified6)&(lastJustified6'=lastCheck6)&(succAttack6'=((!lastCheck6)=true)?true:false)&(heightCheckpoint6'=heightLast6)&(listCheckpoints6'=removeBlock(listCheckpoints6,lastCheck6))&(B6'=updateHF(B6,lastJustified6))&(M6_STATE'=Fin)&(tmp6'=0)&(justified6'=true)&(finalized6'=(heightLast6=EpochSize)?false:true);
+  	[] (M6_STATE=Check)&(votes6>=2/3*tot_stake)&(heightLast6!=heightCheckpoint6+EpochSize)&(heightLast6>heightCheckpoint6) -> rIst : (lastJustified6'=lastCheck6)&(heightCheckpoint6'=heightLast6)&(succAttack6'=((!lastCheck6)=true)?true:false)&(listCheckpoints6'=removeBlock(listCheckpoints6,lastCheck6))&(M6_STATE'=Start)&(tmp6'=0)&(B6'=updateJust(B6,lastJustified6))&(justified6'=true);
+	[] (M6_STATE=Check)&((votes6<=2/3*tot_stake)&(heightLast6<=heightCheckpoint6)|((votes6>=2/3*tot_stake)&(heightLast6<=heightCheckpoint6))) -> rIst: (listCheckpoints6'=removeBlock(listCheckpoints6,lastCheck6))&(M6_STATE'=Start)&(tmp6'=0);
+	[] (M6_STATE=Check)&(votes6<=2/3*tot_stake)&(heightLast6>heightCheckpoint6) -> rIst: (M6_STATE'=Start)&(tmp6'=0);
+	[finBlock6] (M6_STATE=Fin) -> 1:(finalized6'=false)&(justified6'=false)&(M6_STATE'=Start);
+
+endmodule
+
+module Validator7
+
+	M7_STATE : [Start..Fin] init Start;
+	b7 : block {m7,0;genesis,0};
+	B7 : blockchain [{genesis,0;genesis,0}];
+	c7 : [0..N] init 0;
+	tmp7 : [0..3] init 0;
+	votes7 : [0..1000] init 0;
+	height7 : [0..N] init 0;
+	lastFinalized7 : block {genesis,0;genesis,0};
+	lastJustified7 : block {genesis,0;genesis,0};
+  	lastCheck7 : block {genesis,0;genesis,0};
+	heightCheckpoint7 : [0..N] init 0;
+  	heightLast7 : [0..N] init 0;
+	listCheckpoints7 : list [];
+	lenListCheck7 : [0..N] init 0;
+	numFinBlocks7 : [0..N] init 0;
+	finalized7 : bool init false;
+	justified7 : bool init false;
+	succAttack7 : bool init false;
+
+  	[] (M7_STATE=Start) -> p : (justified7'=false)&(b7'=createB(lastJustified7,B7,c7))&(c7'=c7+1)&(M7_STATE'=Winner);
+  	[] (M7_STATE=Start) -> np : (M7_STATE'=Lost);
+  	[] (M7_STATE=Start)&(!isEmpty(listCheckpoints7)) -> rC :  (lastCheck7'=extractCheckpoint(listCheckpoints7,lastCheck7))&(heightLast7'=getHeight(extractCheckpoint(listCheckpoints7,lastCheck7)))&(votes7'=calcVotes(voti,extractCheckpoint(listCheckpoints7,lastCheck7)))&(M7_STATE'=Check);
+
+  	[addBlock7] (M7_STATE=Winner) -> rMw: (B7'=addBlock(B7,b7))&(M7_STATE'=(mod(getHeight(b7),EpochSize)=0)?Vote:Start)&(height7'=getHeight(b7));
+
+  	[] (M7_STATE=Lost)&(!isEmpty(set7)) -> 1 : (b7'=extractBlock(set7))&(M7_STATE'=Move);
+  	[] (M7_STATE=Lost)&(isEmpty(set7)) -> 1 : (M7_STATE'=Start);
+
+  	[extractBlock7] (M7_STATE=Move)&(canBeInserted(B7,b7)) -> 1:(B7'=addBlock(B7,b7))&(M7_STATE'=((mod(getHeight(b7),EpochSize)=0)&(getHeight(b7)>heightCheckpoint7))?Vote:Start);
+  	[] (M7_STATE=Move)&(!canBeInserted(B7,b7)) -> rIst:(M7_STATE'=Start);
+
+  	[voteBlock7] (M7_STATE=Vote) -> 1 : (listCheckpoints7'=addBlockSet(listCheckpoints7,b7))&(M7_STATE'=Start);
+
+  	[] (M7_STATE=Check)&(votes7>=2/3*tot_stake)&(heightLast7=heightCheckpoint7+EpochSize) -> rIst : (numFinBlocks7'=numFinBlocks7+1)&(lastFinalized7'=lastJustified7)&(lastJustified7'=lastCheck7)&(succAttack7'=((!lastCheck7)=true)?true:false)&(heightCheckpoint7'=heightLast7)&(listCheckpoints7'=removeBlock(listCheckpoints7,lastCheck7))&(B7'=updateHF(B7,lastJustified7))&(M7_STATE'=Fin)&(tmp7'=0)&(justified7'=true)&(finalized7'=(heightLast7=EpochSize)?false:true);
+  	[] (M7_STATE=Check)&(votes7>=2/3*tot_stake)&(heightLast7!=heightCheckpoint7+EpochSize)&(heightLast7>heightCheckpoint7) -> rIst : (lastJustified7'=lastCheck7)&(heightCheckpoint7'=heightLast7)&(succAttack7'=((!lastCheck7)=true)?true:false)&(listCheckpoints7'=removeBlock(listCheckpoints7,lastCheck7))&(M7_STATE'=Start)&(tmp7'=0)&(B7'=updateJust(B7,lastJustified7))&(justified7'=true);
+	[] (M7_STATE=Check)&((votes7<=2/3*tot_stake)&(heightLast7<=heightCheckpoint7)|((votes7>=2/3*tot_stake)&(heightLast7<=heightCheckpoint7))) -> rIst: (listCheckpoints7'=removeBlock(listCheckpoints7,lastCheck7))&(M7_STATE'=Start)&(tmp7'=0);
+	[] (M7_STATE=Check)&(votes7<=2/3*tot_stake)&(heightLast7>heightCheckpoint7) -> rIst: (M7_STATE'=Start)&(tmp7'=0);
+	[finBlock7] (M7_STATE=Fin) -> 1:(finalized7'=false)&(justified7'=false)&(M7_STATE'=Start);
+
+endmodule
+
+module Validator8
+
+	M8_STATE : [Start..Fin] init Start;
+	b8 : block {m8,0;genesis,0};
+	B8 : blockchain [{genesis,0;genesis,0}];
+	c8 : [0..N] init 0;
+	tmp8 : [0..3] init 0;
+	votes8 : [0..1000] init 0;
+	height8 : [0..N] init 0;
+	lastFinalized8 : block {genesis,0;genesis,0};
+	lastJustified8 : block {genesis,0;genesis,0};
+  	lastCheck8 : block {genesis,0;genesis,0};
+	heightCheckpoint8 : [0..N] init 0;
+  	heightLast8 : [0..N] init 0;
+	listCheckpoints8 : list [];
+	lenListCheck8 : [0..N] init 0;
+	numFinBlocks8 : [0..N] init 0;
+	finalized8 : bool init false;
+	justified8 : bool init false;
+	succAttack8 : bool init false;
+
+  	[] (M8_STATE=Start) -> p : (justified8'=false)&(b8'=createB(lastJustified8,B8,c8))&(c8'=c8+1)&(M8_STATE'=Winner);
+  	[] (M8_STATE=Start) -> np : (M8_STATE'=Lost);
+  	[] (M8_STATE=Start)&(!isEmpty(listCheckpoints8)) -> rC :  (lastCheck8'=extractCheckpoint(listCheckpoints8,lastCheck8))&(heightLast8'=getHeight(extractCheckpoint(listCheckpoints8,lastCheck8)))&(votes8'=calcVotes(voti,extractCheckpoint(listCheckpoints8,lastCheck8)))&(M8_STATE'=Check);
+
+  	[addBlock8] (M8_STATE=Winner) -> rMw: (B8'=addBlock(B8,b8))&(M8_STATE'=(mod(getHeight(b8),EpochSize)=0)?Vote:Start)&(height8'=getHeight(b8));
+
+  	[] (M8_STATE=Lost)&(!isEmpty(set8)) -> 1 : (b8'=extractBlock(set8))&(M8_STATE'=Move);
+  	[] (M8_STATE=Lost)&(isEmpty(set8)) -> 1 : (M8_STATE'=Start);
+
+  	[extractBlock8] (M8_STATE=Move)&(canBeInserted(B8,b8)) -> 1:(B8'=addBlock(B8,b8))&(M8_STATE'=((mod(getHeight(b8),EpochSize)=0)&(getHeight(b8)>heightCheckpoint8))?Vote:Start);
+  	[] (M8_STATE=Move)&(!canBeInserted(B8,b8)) -> rIst:(M8_STATE'=Start);
+
+  	[voteBlock8] (M8_STATE=Vote) -> 1 : (listCheckpoints8'=addBlockSet(listCheckpoints8,b8))&(M8_STATE'=Start);
+
+  	[] (M8_STATE=Check)&(votes8>=2/3*tot_stake)&(heightLast8=heightCheckpoint8+EpochSize) -> rIst : (numFinBlocks8'=numFinBlocks8+1)&(lastFinalized8'=lastJustified8)&(lastJustified8'=lastCheck8)&(succAttack8'=((!lastCheck8)=true)?true:false)&(heightCheckpoint8'=heightLast8)&(listCheckpoints8'=removeBlock(listCheckpoints8,lastCheck8))&(B8'=updateHF(B8,lastJustified8))&(M8_STATE'=Fin)&(tmp8'=0)&(justified8'=true)&(finalized8'=(heightLast8=EpochSize)?false:true);
+  	[] (M8_STATE=Check)&(votes8>=2/3*tot_stake)&(heightLast8!=heightCheckpoint8+EpochSize)&(heightLast8>heightCheckpoint8) -> rIst : (lastJustified8'=lastCheck8)&(heightCheckpoint8'=heightLast8)&(succAttack8'=((!lastCheck8)=true)?true:false)&(listCheckpoints8'=removeBlock(listCheckpoints8,lastCheck8))&(M8_STATE'=Start)&(tmp8'=0)&(B8'=updateJust(B8,lastJustified8))&(justified8'=true);
+	[] (M8_STATE=Check)&((votes8<=2/3*tot_stake)&(heightLast8<=heightCheckpoint8)|((votes8>=2/3*tot_stake)&(heightLast8<=heightCheckpoint8))) -> rIst: (listCheckpoints8'=removeBlock(listCheckpoints8,lastCheck8))&(M8_STATE'=Start)&(tmp8'=0);
+	[] (M8_STATE=Check)&(votes8<=2/3*tot_stake)&(heightLast8>heightCheckpoint8) -> rIst: (M8_STATE'=Start)&(tmp8'=0);
+	[finBlock8] (M8_STATE=Fin) -> 1:(finalized8'=false)&(justified8'=false)&(M8_STATE'=Start);
+
+endmodule
+
+module Validator9
+
+	M9_STATE : [Start..Fin] init Start;
+	b9 : block {m9,0;genesis,0};
+	B9 : blockchain [{genesis,0;genesis,0}];
+	c9 : [0..N] init 0;
+	tmp9 : [0..3] init 0;
+	votes9 : [0..1000] init 0;
+	height9 : [0..N] init 0;
+	lastFinalized9 : block {genesis,0;genesis,0};
+	lastJustified9 : block {genesis,0;genesis,0};
+  	lastCheck9 : block {genesis,0;genesis,0};
+	heightCheckpoint9 : [0..N] init 0;
+  	heightLast9 : [0..N] init 0;
+	listCheckpoints9 : list [];
+	lenListCheck9 : [0..N] init 0;
+	numFinBlocks9 : [0..N] init 0;
+	finalized9 : bool init false;
+	justified9 : bool init false;
+	succAttack9 : bool init false;
+
+  	[] (M9_STATE=Start) -> p : (justified9'=false)&(b9'=createB(lastJustified9,B9,c9))&(c9'=c9+1)&(M9_STATE'=Winner);
+  	[] (M9_STATE=Start) -> np : (M9_STATE'=Lost);
+  	[] (M9_STATE=Start)&(!isEmpty(listCheckpoints9)) -> rC :  (lastCheck9'=extractCheckpoint(listCheckpoints9,lastCheck9))&(heightLast9'=getHeight(extractCheckpoint(listCheckpoints9,lastCheck9)))&(votes9'=calcVotes(voti,extractCheckpoint(listCheckpoints9,lastCheck9)))&(M9_STATE'=Check);
+
+  	[addBlock9] (M9_STATE=Winner) -> rMw: (B9'=addBlock(B9,b9))&(M9_STATE'=(mod(getHeight(b9),EpochSize)=0)?Vote:Start)&(height9'=getHeight(b9));
+
+  	[] (M9_STATE=Lost)&(!isEmpty(set9)) -> 1 : (b9'=extractBlock(set9))&(M9_STATE'=Move);
+  	[] (M9_STATE=Lost)&(isEmpty(set9)) -> 1 : (M9_STATE'=Start);
+
+  	[extractBlock9] (M9_STATE=Move)&(canBeInserted(B9,b9)) -> 1:(B9'=addBlock(B9,b9))&(M9_STATE'=((mod(getHeight(b9),EpochSize)=0)&(getHeight(b9)>heightCheckpoint9))?Vote:Start);
+  	[] (M9_STATE=Move)&(!canBeInserted(B9,b9)) -> rIst:(M9_STATE'=Start);
+
+  	[voteBlock9] (M9_STATE=Vote) -> 1 : (listCheckpoints9'=addBlockSet(listCheckpoints9,b9))&(M9_STATE'=Start);
+
+  	[] (M9_STATE=Check)&(votes9>=2/3*tot_stake)&(heightLast9=heightCheckpoint9+EpochSize) -> rIst : (numFinBlocks9'=numFinBlocks9+1)&(lastFinalized9'=lastJustified9)&(lastJustified9'=lastCheck9)&(succAttack9'=((!lastCheck9)=true)?true:false)&(heightCheckpoint9'=heightLast9)&(listCheckpoints9'=removeBlock(listCheckpoints9,lastCheck9))&(B9'=updateHF(B9,lastJustified9))&(M9_STATE'=Fin)&(tmp9'=0)&(justified9'=true)&(finalized9'=(heightLast9=EpochSize)?false:true);
+  	[] (M9_STATE=Check)&(votes9>=2/3*tot_stake)&(heightLast9!=heightCheckpoint9+EpochSize)&(heightLast9>heightCheckpoint9) -> rIst : (lastJustified9'=lastCheck9)&(heightCheckpoint9'=heightLast9)&(succAttack9'=((!lastCheck9)=true)?true:false)&(listCheckpoints9'=removeBlock(listCheckpoints9,lastCheck9))&(M9_STATE'=Start)&(tmp9'=0)&(B9'=updateJust(B9,lastJustified9))&(justified9'=true);
+	[] (M9_STATE=Check)&((votes9<=2/3*tot_stake)&(heightLast9<=heightCheckpoint9)|((votes9>=2/3*tot_stake)&(heightLast9<=heightCheckpoint9))) -> rIst: (listCheckpoints9'=removeBlock(listCheckpoints9,lastCheck9))&(M9_STATE'=Start)&(tmp9'=0);
+	[] (M9_STATE=Check)&(votes9<=2/3*tot_stake)&(heightLast9>heightCheckpoint9) -> rIst: (M9_STATE'=Start)&(tmp9'=0);
+	[finBlock9] (M9_STATE=Fin) -> 1:(finalized9'=false)&(justified9'=false)&(M9_STATE'=Start);
+
+endmodule
+
+module Validator10
+
+	M10_STATE : [Start..Fin] init Start;
+	b10 : block {m10,0;genesis,0};
+	B10 : blockchain [{genesis,0;genesis,0}];
+	c10 : [0..N] init 0;
+	tmp10 : [0..3] init 0;
+	votes10 : [0..1000] init 0;
+	height10 : [0..N] init 0;
+	lastFinalized10 : block {genesis,0;genesis,0};
+	lastJustified10 : block {genesis,0;genesis,0};
+  	lastCheck10 : block {genesis,0;genesis,0};
+	heightCheckpoint10 : [0..N] init 0;
+  	heightLast10 : [0..N] init 0;
+	listCheckpoints10 : list [];
+	lenListCheck10 : [0..N] init 0;
+	numFinBlocks10 : [0..N] init 0;
+	finalized10 : bool init false;
+	justified10 : bool init false;
+	succAttack10 : bool init false;
+
+  	[] (M10_STATE=Start) -> p : (justified10'=false)&(b10'=createB(lastJustified10,B10,c10))&(c10'=c10+1)&(M10_STATE'=Winner);
+  	[] (M10_STATE=Start) -> np : (M10_STATE'=Lost);
+  	[] (M10_STATE=Start)&(!isEmpty(listCheckpoints10)) -> rC :  (lastCheck10'=extractCheckpoint(listCheckpoints10,lastCheck10))&(heightLast10'=getHeight(extractCheckpoint(listCheckpoints10,lastCheck10)))&(votes10'=calcVotes(voti,extractCheckpoint(listCheckpoints10,lastCheck10)))&(M10_STATE'=Check);
+
+  	[addBlock10] (M10_STATE=Winner) -> rMw: (B10'=addBlock(B10,b10))&(M10_STATE'=(mod(getHeight(b10),EpochSize)=0)?Vote:Start)&(height10'=getHeight(b10));
+
+  	[] (M10_STATE=Lost)&(!isEmpty(set10)) -> 1 : (b10'=extractBlock(set10))&(M10_STATE'=Move);
+  	[] (M10_STATE=Lost)&(isEmpty(set10)) -> 1 : (M10_STATE'=Start);
+
+  	[extractBlock10] (M10_STATE=Move)&(canBeInserted(B10,b10)) -> 1:(B10'=addBlock(B10,b10))&(M10_STATE'=((mod(getHeight(b10),EpochSize)=0)&(getHeight(b10)>heightCheckpoint10))?Vote:Start);
+  	[] (M10_STATE=Move)&(!canBeInserted(B10,b10)) -> rIst:(M10_STATE'=Start);
+
+  	[voteBlock10] (M10_STATE=Vote) -> 1 : (listCheckpoints10'=addBlockSet(listCheckpoints10,b10))&(M10_STATE'=Start);
+
+  	[] (M10_STATE=Check)&(votes10>=2/3*tot_stake)&(heightLast10=heightCheckpoint10+EpochSize) -> rIst : (numFinBlocks10'=numFinBlocks10+1)&(lastFinalized10'=lastJustified10)&(lastJustified10'=lastCheck10)&(succAttack10'=((!lastCheck10)=true)?true:false)&(heightCheckpoint10'=heightLast10)&(listCheckpoints10'=removeBlock(listCheckpoints10,lastCheck10))&(B10'=updateHF(B10,lastJustified10))&(M10_STATE'=Fin)&(tmp10'=0)&(justified10'=true)&(finalized10'=(heightLast10=EpochSize)?false:true);
+  	[] (M10_STATE=Check)&(votes10>=2/3*tot_stake)&(heightLast10!=heightCheckpoint10+EpochSize)&(heightLast10>heightCheckpoint10) -> rIst : (lastJustified10'=lastCheck10)&(heightCheckpoint10'=heightLast10)&(succAttack10'=((!lastCheck10)=true)?true:false)&(listCheckpoints10'=removeBlock(listCheckpoints10,lastCheck10))&(M10_STATE'=Start)&(tmp10'=0)&(B10'=updateJust(B10,lastJustified10))&(justified10'=true);
+	[] (M10_STATE=Check)&((votes10<=2/3*tot_stake)&(heightLast10<=heightCheckpoint10)|((votes10>=2/3*tot_stake)&(heightLast10<=heightCheckpoint10))) -> rIst: (listCheckpoints10'=removeBlock(listCheckpoints10,lastCheck10))&(M10_STATE'=Start)&(tmp10'=0);
+	[] (M10_STATE=Check)&(votes10<=2/3*tot_stake)&(heightLast10>heightCheckpoint10) -> rIst: (M10_STATE'=Start)&(tmp10'=0);
+	[finBlock10] (M10_STATE=Fin) -> 1:(finalized10'=false)&(justified10'=false)&(M10_STATE'=Start);
+
+endmodule
+
+module Validator11
+
+	M11_STATE : [Start..Fin] init Start;
+	b11 : block {m11,0;genesis,0};
+	B11 : blockchain [{genesis,0;genesis,0}];
+	c11 : [0..N] init 0;
+	tmp11 : [0..3] init 0;
+	votes11 : [0..1000] init 0;
+	height11 : [0..N] init 0;
+	lastFinalized11 : block {genesis,0;genesis,0};
+	lastJustified11 : block {genesis,0;genesis,0};
+  	lastCheck11 : block {genesis,0;genesis,0};
+	heightCheckpoint11 : [0..N] init 0;
+  	heightLast11 : [0..N] init 0;
+	listCheckpoints11 : list [];
+	lenListCheck11 : [0..N] init 0;
+	numFinBlocks11 : [0..N] init 0;
+	finalized11 : bool init false;
+	justified11 : bool init false;
+	succAttack11 : bool init false;
+
+  	[] (M11_STATE=Start) -> p : (justified11'=false)&(b11'=createB(lastJustified11,B11,c11))&(c11'=c11+1)&(M11_STATE'=Winner);
+  	[] (M11_STATE=Start) -> np : (M11_STATE'=Lost);
+  	[] (M11_STATE=Start)&(!isEmpty(listCheckpoints11)) -> rC :  (lastCheck11'=extractCheckpoint(listCheckpoints11,lastCheck11))&(heightLast11'=getHeight(extractCheckpoint(listCheckpoints11,lastCheck11)))&(votes11'=calcVotes(voti,extractCheckpoint(listCheckpoints11,lastCheck11)))&(M11_STATE'=Check);
+
+  	[addBlock11] (M11_STATE=Winner) -> rMw: (B11'=addBlock(B11,b11))&(M11_STATE'=(mod(getHeight(b11),EpochSize)=0)?Vote:Start)&(height11'=getHeight(b11));
+
+  	[] (M11_STATE=Lost)&(!isEmpty(set11)) -> 1 : (b11'=extractBlock(set11))&(M11_STATE'=Move);
+  	[] (M11_STATE=Lost)&(isEmpty(set11)) -> 1 : (M11_STATE'=Start);
+
+  	[extractBlock11] (M11_STATE=Move)&(canBeInserted(B11,b11)) -> 1:(B11'=addBlock(B11,b11))&(M11_STATE'=((mod(getHeight(b11),EpochSize)=0)&(getHeight(b11)>heightCheckpoint11))?Vote:Start);
+  	[] (M11_STATE=Move)&(!canBeInserted(B11,b11)) -> rIst:(M11_STATE'=Start);
+
+  	[voteBlock11] (M11_STATE=Vote) -> 1 : (listCheckpoints11'=addBlockSet(listCheckpoints11,b11))&(M11_STATE'=Start);
+
+  	[] (M11_STATE=Check)&(votes11>=2/3*tot_stake)&(heightLast11=heightCheckpoint11+EpochSize) -> rIst : (numFinBlocks11'=numFinBlocks11+1)&(lastFinalized11'=lastJustified11)&(lastJustified11'=lastCheck11)&(succAttack11'=((!lastCheck11)=true)?true:false)&(heightCheckpoint11'=heightLast11)&(listCheckpoints11'=removeBlock(listCheckpoints11,lastCheck11))&(B11'=updateHF(B11,lastJustified11))&(M11_STATE'=Fin)&(tmp11'=0)&(justified11'=true)&(finalized11'=(heightLast11=EpochSize)?false:true);
+  	[] (M11_STATE=Check)&(votes11>=2/3*tot_stake)&(heightLast11!=heightCheckpoint11+EpochSize)&(heightLast11>heightCheckpoint11) -> rIst : (lastJustified11'=lastCheck11)&(heightCheckpoint11'=heightLast11)&(succAttack11'=((!lastCheck11)=true)?true:false)&(listCheckpoints11'=removeBlock(listCheckpoints11,lastCheck11))&(M11_STATE'=Start)&(tmp11'=0)&(B11'=updateJust(B11,lastJustified11))&(justified11'=true);
+	[] (M11_STATE=Check)&((votes11<=2/3*tot_stake)&(heightLast11<=heightCheckpoint11)|((votes11>=2/3*tot_stake)&(heightLast11<=heightCheckpoint11))) -> rIst: (listCheckpoints11'=removeBlock(listCheckpoints11,lastCheck11))&(M11_STATE'=Start)&(tmp11'=0);
+	[] (M11_STATE=Check)&(votes11<=2/3*tot_stake)&(heightLast11>heightCheckpoint11) -> rIst: (M11_STATE'=Start)&(tmp11'=0);
+	[finBlock11] (M11_STATE=Fin) -> 1:(finalized11'=false)&(justified11'=false)&(M11_STATE'=Start);
+
+endmodule
+
+module Validator12
+
+	M12_STATE : [Start..Fin] init Start;
+	b12 : block {m12,0;genesis,0};
+	B12 : blockchain [{genesis,0;genesis,0}];
+	c12 : [0..N] init 0;
+	tmp12 : [0..3] init 0;
+	votes12 : [0..1000] init 0;
+	height12 : [0..N] init 0;
+	lastFinalized12 : block {genesis,0;genesis,0};
+	lastJustified12 : block {genesis,0;genesis,0};
+  	lastCheck12 : block {genesis,0;genesis,0};
+	heightCheckpoint12 : [0..N] init 0;
+  	heightLast12 : [0..N] init 0;
+	listCheckpoints12 : list [];
+	lenListCheck12 : [0..N] init 0;
+	numFinBlocks12 : [0..N] init 0;
+	finalized12 : bool init false;
+	justified12 : bool init false;
+	succAttack12 : bool init false;
+
+  	[] (M12_STATE=Start) -> p : (justified12'=false)&(b12'=createB(lastJustified12,B12,c12))&(c12'=c12+1)&(M12_STATE'=Winner);
+  	[] (M12_STATE=Start) -> np : (M12_STATE'=Lost);
+  	[] (M12_STATE=Start)&(!isEmpty(listCheckpoints12)) -> rC :  (lastCheck12'=extractCheckpoint(listCheckpoints12,lastCheck12))&(heightLast12'=getHeight(extractCheckpoint(listCheckpoints12,lastCheck12)))&(votes12'=calcVotes(voti,extractCheckpoint(listCheckpoints12,lastCheck12)))&(M12_STATE'=Check);
+
+  	[addBlock12] (M12_STATE=Winner) -> rMw: (B12'=addBlock(B12,b12))&(M12_STATE'=(mod(getHeight(b12),EpochSize)=0)?Vote:Start)&(height12'=getHeight(b12));
+
+  	[] (M12_STATE=Lost)&(!isEmpty(set12)) -> 1 : (b12'=extractBlock(set12))&(M12_STATE'=Move);
+  	[] (M12_STATE=Lost)&(isEmpty(set12)) -> 1 : (M12_STATE'=Start);
+
+  	[extractBlock12] (M12_STATE=Move)&(canBeInserted(B12,b12)) -> 1:(B12'=addBlock(B12,b12))&(M12_STATE'=((mod(getHeight(b12),EpochSize)=0)&(getHeight(b12)>heightCheckpoint12))?Vote:Start);
+  	[] (M12_STATE=Move)&(!canBeInserted(B12,b12)) -> rIst:(M12_STATE'=Start);
+
+  	[voteBlock12] (M12_STATE=Vote) -> 1 : (listCheckpoints12'=addBlockSet(listCheckpoints12,b12))&(M12_STATE'=Start);
+
+  	[] (M12_STATE=Check)&(votes12>=2/3*tot_stake)&(heightLast12=heightCheckpoint12+EpochSize) -> rIst : (numFinBlocks12'=numFinBlocks12+1)&(lastFinalized12'=lastJustified12)&(lastJustified12'=lastCheck12)&(succAttack12'=((!lastCheck12)=true)?true:false)&(heightCheckpoint12'=heightLast12)&(listCheckpoints12'=removeBlock(listCheckpoints12,lastCheck12))&(B12'=updateHF(B12,lastJustified12))&(M12_STATE'=Fin)&(tmp12'=0)&(justified12'=true)&(finalized12'=(heightLast12=EpochSize)?false:true);
+  	[] (M12_STATE=Check)&(votes12>=2/3*tot_stake)&(heightLast12!=heightCheckpoint12+EpochSize)&(heightLast12>heightCheckpoint12) -> rIst : (lastJustified12'=lastCheck12)&(heightCheckpoint12'=heightLast12)&(succAttack12'=((!lastCheck12)=true)?true:false)&(listCheckpoints12'=removeBlock(listCheckpoints12,lastCheck12))&(M12_STATE'=Start)&(tmp12'=0)&(B12'=updateJust(B12,lastJustified12))&(justified12'=true);
+	[] (M12_STATE=Check)&((votes12<=2/3*tot_stake)&(heightLast12<=heightCheckpoint12)|((votes12>=2/3*tot_stake)&(heightLast12<=heightCheckpoint12))) -> rIst: (listCheckpoints12'=removeBlock(listCheckpoints12,lastCheck12))&(M12_STATE'=Start)&(tmp12'=0);
+	[] (M12_STATE=Check)&(votes12<=2/3*tot_stake)&(heightLast12>heightCheckpoint12) -> rIst: (M12_STATE'=Start)&(tmp12'=0);
+	[finBlock12] (M12_STATE=Fin) -> 1:(finalized12'=false)&(justified12'=false)&(M12_STATE'=Start);
+
+endmodule
+
+module Updater
+
+    Updater_STATE : [0..1] init 0;
+    tot_stake : [0..120000] init 130;
+    voti : hash [];
+    maxHeight : [0..12000] init 0;
+
+    tmpUp0 : [0..1] init 0;
+    reward0 : [0..N] init 0;
+    stake0 : [0..N] init 10;
+
+    tmpUp1 : [0..1] init 0;
+    reward1 : [0..N] init 0;
+    stake1 : [0..N] init 10;
+
+    tmpUp2 : [0..1] init 0;
+    reward2 : [0..N] init 0;
+    stake2 : [0..N] init 10;
+
+    tmpUp3 : [0..1] init 0;
+    reward3 : [0..N] init 0;
+    stake3 : [0..N] init 10;
+
+    tmpUp4 : [0..1] init 0;
+    reward4 : [0..N] init 0;
+    stake4 : [0..N] init 10;
+
+    tmpUp5 : [0..1] init 0;
+    reward5 : [0..N] init 0;
+    stake5 : [0..N] init 10;
+
+    tmpUp6 : [0..1] init 0;
+    reward6 : [0..N] init 0;
+    stake6 : [0..N] init 10;
+
+    tmpUp7 : [0..1] init 0;
+    reward7 : [0..N] init 0;
+    stake7 : [0..N] init 10;
+
+    tmpUp8 : [0..1] init 0;
+    reward8 : [0..N] init 0;
+    stake8 : [0..N] init 10;
+
+    tmpUp9 : [0..1] init 0;
+    reward9 : [0..N] init 0;
+    stake9 : [0..N] init 10;
+
+    tmpUp10 : [0..1] init 0;
+    reward10 : [0..N] init 0;
+    stake10 : [0..N] init 10;
+
+    tmpUp11 : [0..1] init 0;
+    reward11 : [0..N] init 0;
+    stake11 : [0..N] init 10;
+
+    tmpUp12 : [0..1] init 0;
+    reward12 : [0..N] init 0;
+    stake12 : [0..N] init 10;
+
+    [voteBlock0] (Updater_STATE=0) -> 1 : (voti'=addVote(voti,b0,stake0));
+
+    [finBlock0] (Updater_STATE=0)&(getHeight(lastFinalized0)>maxHeight) -> 1 :(stake0'=updateStake(voti,lastFinalized0,13,stake0,tot_stake))&(stake1'=updateStake(voti,lastFinalized0,13,stake1,tot_stake))&(stake2'=updateStake(voti,lastFinalized0,13,stake2,tot_stake))&(stake3'=updateStake(voti,lastFinalized0,13,stake3,tot_stake))&(stake4'=updateStake(voti,lastFinalized0,13,stake4,tot_stake))&(stake5'=updateStake(voti,lastFinalized0,13,stake5,tot_stake))&(stake6'=updateStake(voti,lastFinalized0,13,stake6,tot_stake))&(stake7'=updateStake(voti,lastFinalized0,13,stake7,tot_stake))&(stake8'=updateStake(voti,lastFinalized0,13,stake8,tot_stake))&(stake9'=updateStake(voti,lastFinalized0,13,stake9,tot_stake))&(stake10'=updateStake(voti,lastFinalized0,13,stake10,tot_stake))&(stake11'=updateStake(voti,lastFinalized0,13,stake11,tot_stake))&(stake12'=updateStake(voti,lastFinalized0,13,stake12,tot_stake))&(maxHeight'=getHeight(lastFinalized1))&(tot_stake'=updateStake(voti,lastFinalized0,13,stake0,tot_stake)+updateStake(voti,lastFinalized0,13,stake1,tot_stake)+updateStake(voti,lastFinalized0,13,stake2,tot_stake)+updateStake(voti,lastFinalized0,13,stake3,tot_stake)+updateStake(voti,lastFinalized0,13,stake4,tot_stake)+updateStake(voti,lastFinalized0,13,stake5,tot_stake)+updateStake(voti,lastFinalized0,13,stake6,tot_stake)+updateStake(voti,lastFinalized0,13,stake7,tot_stake)+updateStake(voti,lastFinalized0,13,stake8,tot_stake)+updateStake(voti,lastFinalized0,13,stake9,tot_stake)+updateStake(voti,lastFinalized0,13,stake10,tot_stake)+updateStake(voti,lastFinalized0,13,stake11,tot_stake)+updateStake(voti,lastFinalized0,13,stake12,tot_stake));
+    [finBlock0] (Updater_STATE=0)&(getHeight(lastFinalized0)<=maxHeight) -> 1 : (Updater_STATE'=0);
+
+    [voteBlock1] (Updater_STATE=0) -> 1 : (voti'=addVote(voti,b1,stake1));
+
+    [finBlock1] (Updater_STATE=0)&(getHeight(lastFinalized1)>maxHeight) -> 1 :(stake0'=updateStake(voti,lastFinalized1,13,stake0,tot_stake))&(stake1'=updateStake(voti,lastFinalized1,13,stake1,tot_stake))&(stake2'=updateStake(voti,lastFinalized1,13,stake2,tot_stake))&(stake3'=updateStake(voti,lastFinalized1,13,stake3,tot_stake))&(stake4'=updateStake(voti,lastFinalized1,13,stake4,tot_stake))&(stake5'=updateStake(voti,lastFinalized1,13,stake5,tot_stake))&(stake6'=updateStake(voti,lastFinalized1,13,stake6,tot_stake))&(stake7'=updateStake(voti,lastFinalized1,13,stake7,tot_stake))&(stake8'=updateStake(voti,lastFinalized1,13,stake8,tot_stake))&(stake9'=updateStake(voti,lastFinalized1,13,stake9,tot_stake))&(stake10'=updateStake(voti,lastFinalized1,13,stake10,tot_stake))&(stake11'=updateStake(voti,lastFinalized1,13,stake11,tot_stake))&(stake12'=updateStake(voti,lastFinalized1,13,stake12,tot_stake))&(maxHeight'=getHeight(lastFinalized1))&(tot_stake'=updateStake(voti,lastFinalized1,13,stake0,tot_stake)+updateStake(voti,lastFinalized1,13,stake1,tot_stake)+updateStake(voti,lastFinalized1,13,stake2,tot_stake)+updateStake(voti,lastFinalized1,13,stake3,tot_stake)+updateStake(voti,lastFinalized1,13,stake4,tot_stake)+updateStake(voti,lastFinalized1,13,stake5,tot_stake)+updateStake(voti,lastFinalized1,13,stake6,tot_stake)+updateStake(voti,lastFinalized1,13,stake7,tot_stake)+updateStake(voti,lastFinalized1,13,stake8,tot_stake)+updateStake(voti,lastFinalized1,13,stake9,tot_stake)+updateStake(voti,lastFinalized1,13,stake10,tot_stake)+updateStake(voti,lastFinalized1,13,stake11,tot_stake)+updateStake(voti,lastFinalized1,13,stake12,tot_stake));
+    [finBlock1] (Updater_STATE=0)&(getHeight(lastFinalized1)<=maxHeight) -> 1 : (Updater_STATE'=0);
+
+    [voteBlock2] (Updater_STATE=0) -> 1 : (voti'=addVote(voti,b2,stake2));
+
+    [finBlock2] (Updater_STATE=0)&(getHeight(lastFinalized2)>maxHeight) -> 1 :(stake0'=updateStake(voti,lastFinalized2,13,stake0,tot_stake))&(stake1'=updateStake(voti,lastFinalized2,13,stake1,tot_stake))&(stake2'=updateStake(voti,lastFinalized2,13,stake2,tot_stake))&(stake3'=updateStake(voti,lastFinalized2,13,stake3,tot_stake))&(stake4'=updateStake(voti,lastFinalized2,13,stake4,tot_stake))&(stake5'=updateStake(voti,lastFinalized2,13,stake5,tot_stake))&(stake6'=updateStake(voti,lastFinalized2,13,stake6,tot_stake))&(stake7'=updateStake(voti,lastFinalized2,13,stake7,tot_stake))&(stake8'=updateStake(voti,lastFinalized2,13,stake8,tot_stake))&(stake9'=updateStake(voti,lastFinalized2,13,stake9,tot_stake))&(stake10'=updateStake(voti,lastFinalized2,13,stake10,tot_stake))&(stake11'=updateStake(voti,lastFinalized2,13,stake11,tot_stake))&(stake12'=updateStake(voti,lastFinalized2,13,stake12,tot_stake))&(maxHeight'=getHeight(lastFinalized1))&(tot_stake'=updateStake(voti,lastFinalized2,13,stake0,tot_stake)+updateStake(voti,lastFinalized2,13,stake1,tot_stake)+updateStake(voti,lastFinalized2,13,stake2,tot_stake)+updateStake(voti,lastFinalized2,13,stake3,tot_stake)+updateStake(voti,lastFinalized2,13,stake4,tot_stake)+updateStake(voti,lastFinalized2,13,stake5,tot_stake)+updateStake(voti,lastFinalized2,13,stake6,tot_stake)+updateStake(voti,lastFinalized2,13,stake7,tot_stake)+updateStake(voti,lastFinalized2,13,stake8,tot_stake)+updateStake(voti,lastFinalized2,13,stake9,tot_stake)+updateStake(voti,lastFinalized2,13,stake10,tot_stake)+updateStake(voti,lastFinalized2,13,stake11,tot_stake)+updateStake(voti,lastFinalized2,13,stake12,tot_stake));
+    [finBlock2] (Updater_STATE=0)&(getHeight(lastFinalized2)<=maxHeight) -> 1 : (Updater_STATE'=0);
+
+    [voteBlock3] (Updater_STATE=0) -> 1 : (voti'=addVote(voti,b3,stake3));
+
+    [finBlock3] (Updater_STATE=0)&(getHeight(lastFinalized3)>maxHeight) -> 1 :(stake0'=updateStake(voti,lastFinalized3,13,stake0,tot_stake))&(stake1'=updateStake(voti,lastFinalized3,13,stake1,tot_stake))&(stake2'=updateStake(voti,lastFinalized3,13,stake2,tot_stake))&(stake3'=updateStake(voti,lastFinalized3,13,stake3,tot_stake))&(stake4'=updateStake(voti,lastFinalized3,13,stake4,tot_stake))&(stake5'=updateStake(voti,lastFinalized3,13,stake5,tot_stake))&(stake6'=updateStake(voti,lastFinalized3,13,stake6,tot_stake))&(stake7'=updateStake(voti,lastFinalized3,13,stake7,tot_stake))&(stake8'=updateStake(voti,lastFinalized3,13,stake8,tot_stake))&(stake9'=updateStake(voti,lastFinalized3,13,stake9,tot_stake))&(stake10'=updateStake(voti,lastFinalized3,13,stake10,tot_stake))&(stake11'=updateStake(voti,lastFinalized3,13,stake11,tot_stake))&(stake12'=updateStake(voti,lastFinalized3,13,stake12,tot_stake))&(maxHeight'=getHeight(lastFinalized1))&(tot_stake'=updateStake(voti,lastFinalized3,13,stake0,tot_stake)+updateStake(voti,lastFinalized3,13,stake1,tot_stake)+updateStake(voti,lastFinalized3,13,stake2,tot_stake)+updateStake(voti,lastFinalized3,13,stake3,tot_stake)+updateStake(voti,lastFinalized3,13,stake4,tot_stake)+updateStake(voti,lastFinalized3,13,stake5,tot_stake)+updateStake(voti,lastFinalized3,13,stake6,tot_stake)+updateStake(voti,lastFinalized3,13,stake7,tot_stake)+updateStake(voti,lastFinalized3,13,stake8,tot_stake)+updateStake(voti,lastFinalized3,13,stake9,tot_stake)+updateStake(voti,lastFinalized3,13,stake10,tot_stake)+updateStake(voti,lastFinalized3,13,stake11,tot_stake)+updateStake(voti,lastFinalized3,13,stake12,tot_stake));
+    [finBlock3] (Updater_STATE=0)&(getHeight(lastFinalized3)<=maxHeight) -> 1 : (Updater_STATE'=0);
+
+    [voteBlock4] (Updater_STATE=0) -> 1 : (voti'=addVote(voti,b4,stake4));
+
+    [finBlock4] (Updater_STATE=0)&(getHeight(lastFinalized4)>maxHeight) -> 1 :(stake0'=updateStake(voti,lastFinalized4,13,stake0,tot_stake))&(stake1'=updateStake(voti,lastFinalized4,13,stake1,tot_stake))&(stake2'=updateStake(voti,lastFinalized4,13,stake2,tot_stake))&(stake3'=updateStake(voti,lastFinalized4,13,stake3,tot_stake))&(stake4'=updateStake(voti,lastFinalized4,13,stake4,tot_stake))&(stake5'=updateStake(voti,lastFinalized4,13,stake5,tot_stake))&(stake6'=updateStake(voti,lastFinalized4,13,stake6,tot_stake))&(stake7'=updateStake(voti,lastFinalized4,13,stake7,tot_stake))&(stake8'=updateStake(voti,lastFinalized4,13,stake8,tot_stake))&(stake9'=updateStake(voti,lastFinalized4,13,stake9,tot_stake))&(stake10'=updateStake(voti,lastFinalized4,13,stake10,tot_stake))&(stake11'=updateStake(voti,lastFinalized4,13,stake11,tot_stake))&(stake12'=updateStake(voti,lastFinalized4,13,stake12,tot_stake))&(maxHeight'=getHeight(lastFinalized1))&(tot_stake'=updateStake(voti,lastFinalized4,13,stake0,tot_stake)+updateStake(voti,lastFinalized4,13,stake1,tot_stake)+updateStake(voti,lastFinalized4,13,stake2,tot_stake)+updateStake(voti,lastFinalized4,13,stake3,tot_stake)+updateStake(voti,lastFinalized4,13,stake4,tot_stake)+updateStake(voti,lastFinalized4,13,stake5,tot_stake)+updateStake(voti,lastFinalized4,13,stake6,tot_stake)+updateStake(voti,lastFinalized4,13,stake7,tot_stake)+updateStake(voti,lastFinalized4,13,stake8,tot_stake)+updateStake(voti,lastFinalized4,13,stake9,tot_stake)+updateStake(voti,lastFinalized4,13,stake10,tot_stake)+updateStake(voti,lastFinalized4,13,stake11,tot_stake)+updateStake(voti,lastFinalized4,13,stake12,tot_stake));
+    [finBlock4] (Updater_STATE=0)&(getHeight(lastFinalized4)<=maxHeight) -> 1 : (Updater_STATE'=0);
+
+    [voteBlock5] (Updater_STATE=0) -> 1 : (voti'=addVote(voti,b5,stake5));
+
+    [finBlock5] (Updater_STATE=0)&(getHeight(lastFinalized5)>maxHeight) -> 1 :(stake0'=updateStake(voti,lastFinalized5,13,stake0,tot_stake))&(stake1'=updateStake(voti,lastFinalized5,13,stake1,tot_stake))&(stake2'=updateStake(voti,lastFinalized5,13,stake2,tot_stake))&(stake3'=updateStake(voti,lastFinalized5,13,stake3,tot_stake))&(stake4'=updateStake(voti,lastFinalized5,13,stake4,tot_stake))&(stake5'=updateStake(voti,lastFinalized5,13,stake5,tot_stake))&(stake6'=updateStake(voti,lastFinalized5,13,stake6,tot_stake))&(stake7'=updateStake(voti,lastFinalized5,13,stake7,tot_stake))&(stake8'=updateStake(voti,lastFinalized5,13,stake8,tot_stake))&(stake9'=updateStake(voti,lastFinalized5,13,stake9,tot_stake))&(stake10'=updateStake(voti,lastFinalized5,13,stake10,tot_stake))&(stake11'=updateStake(voti,lastFinalized5,13,stake11,tot_stake))&(stake12'=updateStake(voti,lastFinalized5,13,stake12,tot_stake))&(maxHeight'=getHeight(lastFinalized1))&(tot_stake'=updateStake(voti,lastFinalized5,13,stake0,tot_stake)+updateStake(voti,lastFinalized5,13,stake1,tot_stake)+updateStake(voti,lastFinalized5,13,stake2,tot_stake)+updateStake(voti,lastFinalized5,13,stake3,tot_stake)+updateStake(voti,lastFinalized5,13,stake4,tot_stake)+updateStake(voti,lastFinalized5,13,stake5,tot_stake)+updateStake(voti,lastFinalized5,13,stake6,tot_stake)+updateStake(voti,lastFinalized5,13,stake7,tot_stake)+updateStake(voti,lastFinalized5,13,stake8,tot_stake)+updateStake(voti,lastFinalized5,13,stake9,tot_stake)+updateStake(voti,lastFinalized5,13,stake10,tot_stake)+updateStake(voti,lastFinalized5,13,stake11,tot_stake)+updateStake(voti,lastFinalized5,13,stake12,tot_stake));
+    [finBlock5] (Updater_STATE=0)&(getHeight(lastFinalized5)<=maxHeight) -> 1 : (Updater_STATE'=0);
+
+    [voteBlock6] (Updater_STATE=0) -> 1 : (voti'=addVote(voti,b6,stake6));
+
+    [finBlock6] (Updater_STATE=0)&(getHeight(lastFinalized6)>maxHeight) -> 1 :(stake0'=updateStake(voti,lastFinalized6,13,stake0,tot_stake))&(stake1'=updateStake(voti,lastFinalized6,13,stake1,tot_stake))&(stake2'=updateStake(voti,lastFinalized6,13,stake2,tot_stake))&(stake3'=updateStake(voti,lastFinalized6,13,stake3,tot_stake))&(stake4'=updateStake(voti,lastFinalized6,13,stake4,tot_stake))&(stake5'=updateStake(voti,lastFinalized6,13,stake5,tot_stake))&(stake6'=updateStake(voti,lastFinalized6,13,stake6,tot_stake))&(stake7'=updateStake(voti,lastFinalized6,13,stake7,tot_stake))&(stake8'=updateStake(voti,lastFinalized6,13,stake8,tot_stake))&(stake9'=updateStake(voti,lastFinalized6,13,stake9,tot_stake))&(stake10'=updateStake(voti,lastFinalized6,13,stake10,tot_stake))&(stake11'=updateStake(voti,lastFinalized6,13,stake11,tot_stake))&(stake12'=updateStake(voti,lastFinalized6,13,stake12,tot_stake))&(maxHeight'=getHeight(lastFinalized1))&(tot_stake'=updateStake(voti,lastFinalized6,13,stake0,tot_stake)+updateStake(voti,lastFinalized6,13,stake1,tot_stake)+updateStake(voti,lastFinalized6,13,stake2,tot_stake)+updateStake(voti,lastFinalized6,13,stake3,tot_stake)+updateStake(voti,lastFinalized6,13,stake4,tot_stake)+updateStake(voti,lastFinalized6,13,stake5,tot_stake)+updateStake(voti,lastFinalized6,13,stake6,tot_stake)+updateStake(voti,lastFinalized6,13,stake7,tot_stake)+updateStake(voti,lastFinalized6,13,stake8,tot_stake)+updateStake(voti,lastFinalized6,13,stake9,tot_stake)+updateStake(voti,lastFinalized6,13,stake10,tot_stake)+updateStake(voti,lastFinalized6,13,stake11,tot_stake)+updateStake(voti,lastFinalized6,13,stake12,tot_stake));
+    [finBlock6] (Updater_STATE=0)&(getHeight(lastFinalized6)<=maxHeight) -> 1 : (Updater_STATE'=0);
+
+    [voteBlock7] (Updater_STATE=0) -> 1 : (voti'=addVote(voti,b7,stake7));
+
+    [finBlock7] (Updater_STATE=0)&(getHeight(lastFinalized7)>maxHeight) -> 1 :(stake0'=updateStake(voti,lastFinalized7,13,stake0,tot_stake))&(stake1'=updateStake(voti,lastFinalized7,13,stake1,tot_stake))&(stake2'=updateStake(voti,lastFinalized7,13,stake2,tot_stake))&(stake3'=updateStake(voti,lastFinalized7,13,stake3,tot_stake))&(stake4'=updateStake(voti,lastFinalized7,13,stake4,tot_stake))&(stake5'=updateStake(voti,lastFinalized7,13,stake5,tot_stake))&(stake6'=updateStake(voti,lastFinalized7,13,stake6,tot_stake))&(stake7'=updateStake(voti,lastFinalized7,13,stake7,tot_stake))&(stake8'=updateStake(voti,lastFinalized7,13,stake8,tot_stake))&(stake9'=updateStake(voti,lastFinalized7,13,stake9,tot_stake))&(stake10'=updateStake(voti,lastFinalized7,13,stake10,tot_stake))&(stake11'=updateStake(voti,lastFinalized7,13,stake11,tot_stake))&(stake12'=updateStake(voti,lastFinalized7,13,stake12,tot_stake))&(maxHeight'=getHeight(lastFinalized1))&(tot_stake'=updateStake(voti,lastFinalized7,13,stake0,tot_stake)+updateStake(voti,lastFinalized7,13,stake1,tot_stake)+updateStake(voti,lastFinalized7,13,stake2,tot_stake)+updateStake(voti,lastFinalized7,13,stake3,tot_stake)+updateStake(voti,lastFinalized7,13,stake4,tot_stake)+updateStake(voti,lastFinalized7,13,stake5,tot_stake)+updateStake(voti,lastFinalized7,13,stake6,tot_stake)+updateStake(voti,lastFinalized7,13,stake7,tot_stake)+updateStake(voti,lastFinalized7,13,stake8,tot_stake)+updateStake(voti,lastFinalized7,13,stake9,tot_stake)+updateStake(voti,lastFinalized7,13,stake10,tot_stake)+updateStake(voti,lastFinalized7,13,stake11,tot_stake)+updateStake(voti,lastFinalized7,13,stake12,tot_stake));
+    [finBlock7] (Updater_STATE=0)&(getHeight(lastFinalized7)<=maxHeight) -> 1 : (Updater_STATE'=0);
+
+    [voteBlock8] (Updater_STATE=0) -> 1 : (voti'=addVote(voti,b8,stake8));
+
+    [finBlock8] (Updater_STATE=0)&(getHeight(lastFinalized8)>maxHeight) -> 1 :(stake0'=updateStake(voti,lastFinalized8,13,stake0,tot_stake))&(stake1'=updateStake(voti,lastFinalized8,13,stake1,tot_stake))&(stake2'=updateStake(voti,lastFinalized8,13,stake2,tot_stake))&(stake3'=updateStake(voti,lastFinalized8,13,stake3,tot_stake))&(stake4'=updateStake(voti,lastFinalized8,13,stake4,tot_stake))&(stake5'=updateStake(voti,lastFinalized8,13,stake5,tot_stake))&(stake6'=updateStake(voti,lastFinalized8,13,stake6,tot_stake))&(stake7'=updateStake(voti,lastFinalized8,13,stake7,tot_stake))&(stake8'=updateStake(voti,lastFinalized8,13,stake8,tot_stake))&(stake9'=updateStake(voti,lastFinalized8,13,stake9,tot_stake))&(stake10'=updateStake(voti,lastFinalized8,13,stake10,tot_stake))&(stake11'=updateStake(voti,lastFinalized8,13,stake11,tot_stake))&(stake12'=updateStake(voti,lastFinalized8,13,stake12,tot_stake))&(maxHeight'=getHeight(lastFinalized1))&(tot_stake'=updateStake(voti,lastFinalized8,13,stake0,tot_stake)+updateStake(voti,lastFinalized8,13,stake1,tot_stake)+updateStake(voti,lastFinalized8,13,stake2,tot_stake)+updateStake(voti,lastFinalized8,13,stake3,tot_stake)+updateStake(voti,lastFinalized8,13,stake4,tot_stake)+updateStake(voti,lastFinalized8,13,stake5,tot_stake)+updateStake(voti,lastFinalized8,13,stake6,tot_stake)+updateStake(voti,lastFinalized8,13,stake7,tot_stake)+updateStake(voti,lastFinalized8,13,stake8,tot_stake)+updateStake(voti,lastFinalized8,13,stake9,tot_stake)+updateStake(voti,lastFinalized8,13,stake10,tot_stake)+updateStake(voti,lastFinalized8,13,stake11,tot_stake)+updateStake(voti,lastFinalized8,13,stake12,tot_stake));
+    [finBlock8] (Updater_STATE=0)&(getHeight(lastFinalized8)<=maxHeight) -> 1 : (Updater_STATE'=0);
+
+    [voteBlock9] (Updater_STATE=0) -> 1 : (voti'=addVote(voti,b9,stake9));
+
+    [finBlock9] (Updater_STATE=0)&(getHeight(lastFinalized9)>maxHeight) -> 1 :(stake0'=updateStake(voti,lastFinalized9,13,stake0,tot_stake))&(stake1'=updateStake(voti,lastFinalized9,13,stake1,tot_stake))&(stake2'=updateStake(voti,lastFinalized9,13,stake2,tot_stake))&(stake3'=updateStake(voti,lastFinalized9,13,stake3,tot_stake))&(stake4'=updateStake(voti,lastFinalized9,13,stake4,tot_stake))&(stake5'=updateStake(voti,lastFinalized9,13,stake5,tot_stake))&(stake6'=updateStake(voti,lastFinalized9,13,stake6,tot_stake))&(stake7'=updateStake(voti,lastFinalized9,13,stake7,tot_stake))&(stake8'=updateStake(voti,lastFinalized9,13,stake8,tot_stake))&(stake9'=updateStake(voti,lastFinalized9,13,stake9,tot_stake))&(stake10'=updateStake(voti,lastFinalized9,13,stake10,tot_stake))&(stake11'=updateStake(voti,lastFinalized9,13,stake11,tot_stake))&(stake12'=updateStake(voti,lastFinalized9,13,stake12,tot_stake))&(maxHeight'=getHeight(lastFinalized1))&(tot_stake'=updateStake(voti,lastFinalized9,13,stake0,tot_stake)+updateStake(voti,lastFinalized9,13,stake1,tot_stake)+updateStake(voti,lastFinalized9,13,stake2,tot_stake)+updateStake(voti,lastFinalized9,13,stake3,tot_stake)+updateStake(voti,lastFinalized9,13,stake4,tot_stake)+updateStake(voti,lastFinalized9,13,stake5,tot_stake)+updateStake(voti,lastFinalized9,13,stake6,tot_stake)+updateStake(voti,lastFinalized9,13,stake7,tot_stake)+updateStake(voti,lastFinalized9,13,stake8,tot_stake)+updateStake(voti,lastFinalized9,13,stake9,tot_stake)+updateStake(voti,lastFinalized9,13,stake10,tot_stake)+updateStake(voti,lastFinalized9,13,stake11,tot_stake)+updateStake(voti,lastFinalized9,13,stake12,tot_stake));
+    [finBlock9] (Updater_STATE=0)&(getHeight(lastFinalized9)<=maxHeight) -> 1 : (Updater_STATE'=0);
+
+    [voteBlock10] (Updater_STATE=0) -> 1 : (voti'=addVote(voti,b10,stake10));
+
+    [finBlock10] (Updater_STATE=0)&(getHeight(lastFinalized10)>maxHeight) -> 1 :(stake0'=updateStake(voti,lastFinalized10,13,stake0,tot_stake))&(stake1'=updateStake(voti,lastFinalized10,13,stake1,tot_stake))&(stake2'=updateStake(voti,lastFinalized10,13,stake2,tot_stake))&(stake3'=updateStake(voti,lastFinalized10,13,stake3,tot_stake))&(stake4'=updateStake(voti,lastFinalized10,13,stake4,tot_stake))&(stake5'=updateStake(voti,lastFinalized10,13,stake5,tot_stake))&(stake6'=updateStake(voti,lastFinalized10,13,stake6,tot_stake))&(stake7'=updateStake(voti,lastFinalized10,13,stake7,tot_stake))&(stake8'=updateStake(voti,lastFinalized10,13,stake8,tot_stake))&(stake9'=updateStake(voti,lastFinalized10,13,stake9,tot_stake))&(stake10'=updateStake(voti,lastFinalized10,13,stake10,tot_stake))&(stake11'=updateStake(voti,lastFinalized10,13,stake11,tot_stake))&(stake12'=updateStake(voti,lastFinalized10,13,stake12,tot_stake))&(maxHeight'=getHeight(lastFinalized1))&(tot_stake'=updateStake(voti,lastFinalized10,13,stake0,tot_stake)+updateStake(voti,lastFinalized10,13,stake1,tot_stake)+updateStake(voti,lastFinalized10,13,stake2,tot_stake)+updateStake(voti,lastFinalized10,13,stake3,tot_stake)+updateStake(voti,lastFinalized10,13,stake4,tot_stake)+updateStake(voti,lastFinalized10,13,stake5,tot_stake)+updateStake(voti,lastFinalized10,13,stake6,tot_stake)+updateStake(voti,lastFinalized10,13,stake7,tot_stake)+updateStake(voti,lastFinalized10,13,stake8,tot_stake)+updateStake(voti,lastFinalized10,13,stake9,tot_stake)+updateStake(voti,lastFinalized10,13,stake10,tot_stake)+updateStake(voti,lastFinalized10,13,stake11,tot_stake)+updateStake(voti,lastFinalized10,13,stake12,tot_stake));
+    [finBlock10] (Updater_STATE=0)&(getHeight(lastFinalized10)<=maxHeight) -> 1 : (Updater_STATE'=0);
+
+    [voteBlock11] (Updater_STATE=0) -> 1 : (voti'=addVote(voti,b11,stake11));
+
+    [finBlock11] (Updater_STATE=0)&(getHeight(lastFinalized11)>maxHeight) -> 1 :(stake0'=updateStake(voti,lastFinalized11,13,stake0,tot_stake))&(stake1'=updateStake(voti,lastFinalized11,13,stake1,tot_stake))&(stake2'=updateStake(voti,lastFinalized11,13,stake2,tot_stake))&(stake3'=updateStake(voti,lastFinalized11,13,stake3,tot_stake))&(stake4'=updateStake(voti,lastFinalized11,13,stake4,tot_stake))&(stake5'=updateStake(voti,lastFinalized11,13,stake5,tot_stake))&(stake6'=updateStake(voti,lastFinalized11,13,stake6,tot_stake))&(stake7'=updateStake(voti,lastFinalized11,13,stake7,tot_stake))&(stake8'=updateStake(voti,lastFinalized11,13,stake8,tot_stake))&(stake9'=updateStake(voti,lastFinalized11,13,stake9,tot_stake))&(stake10'=updateStake(voti,lastFinalized11,13,stake10,tot_stake))&(stake11'=updateStake(voti,lastFinalized11,13,stake11,tot_stake))&(stake12'=updateStake(voti,lastFinalized11,13,stake12,tot_stake))&(maxHeight'=getHeight(lastFinalized1))&(tot_stake'=updateStake(voti,lastFinalized11,13,stake0,tot_stake)+updateStake(voti,lastFinalized11,13,stake1,tot_stake)+updateStake(voti,lastFinalized11,13,stake2,tot_stake)+updateStake(voti,lastFinalized11,13,stake3,tot_stake)+updateStake(voti,lastFinalized11,13,stake4,tot_stake)+updateStake(voti,lastFinalized11,13,stake5,tot_stake)+updateStake(voti,lastFinalized11,13,stake6,tot_stake)+updateStake(voti,lastFinalized11,13,stake7,tot_stake)+updateStake(voti,lastFinalized11,13,stake8,tot_stake)+updateStake(voti,lastFinalized11,13,stake9,tot_stake)+updateStake(voti,lastFinalized11,13,stake10,tot_stake)+updateStake(voti,lastFinalized11,13,stake11,tot_stake)+updateStake(voti,lastFinalized11,13,stake12,tot_stake));
+    [finBlock11] (Updater_STATE=0)&(getHeight(lastFinalized11)<=maxHeight) -> 1 : (Updater_STATE'=0);
+
+    [voteBlock12] (Updater_STATE=0) -> 1 : (voti'=addVote(voti,b12,stake12));
+
+    [finBlock12] (Updater_STATE=0)&(getHeight(lastFinalized12)>maxHeight) -> 1 :(stake0'=updateStake(voti,lastFinalized12,13,stake0,tot_stake))&(stake1'=updateStake(voti,lastFinalized12,13,stake1,tot_stake))&(stake2'=updateStake(voti,lastFinalized12,13,stake2,tot_stake))&(stake3'=updateStake(voti,lastFinalized12,13,stake3,tot_stake))&(stake4'=updateStake(voti,lastFinalized12,13,stake4,tot_stake))&(stake5'=updateStake(voti,lastFinalized12,13,stake5,tot_stake))&(stake6'=updateStake(voti,lastFinalized12,13,stake6,tot_stake))&(stake7'=updateStake(voti,lastFinalized12,13,stake7,tot_stake))&(stake8'=updateStake(voti,lastFinalized12,13,stake8,tot_stake))&(stake9'=updateStake(voti,lastFinalized12,13,stake9,tot_stake))&(stake10'=updateStake(voti,lastFinalized12,13,stake10,tot_stake))&(stake11'=updateStake(voti,lastFinalized12,13,stake11,tot_stake))&(stake12'=updateStake(voti,lastFinalized12,13,stake12,tot_stake))&(maxHeight'=getHeight(lastFinalized1))&(tot_stake'=updateStake(voti,lastFinalized12,13,stake0,tot_stake)+updateStake(voti,lastFinalized12,13,stake1,tot_stake)+updateStake(voti,lastFinalized12,13,stake2,tot_stake)+updateStake(voti,lastFinalized12,13,stake3,tot_stake)+updateStake(voti,lastFinalized12,13,stake4,tot_stake)+updateStake(voti,lastFinalized12,13,stake5,tot_stake)+updateStake(voti,lastFinalized12,13,stake6,tot_stake)+updateStake(voti,lastFinalized12,13,stake7,tot_stake)+updateStake(voti,lastFinalized12,13,stake8,tot_stake)+updateStake(voti,lastFinalized12,13,stake9,tot_stake)+updateStake(voti,lastFinalized12,13,stake10,tot_stake)+updateStake(voti,lastFinalized12,13,stake11,tot_stake)+updateStake(voti,lastFinalized12,13,stake12,tot_stake));
+    [finBlock12] (Updater_STATE=0)&(getHeight(lastFinalized12)<=maxHeight) -> 1 : (Updater_STATE'=0);
+
+endmodule
+
+
+module Network
+
+    Network_STATE : [0..2] init 0;
+
+    set0 : list [];
+    lenGlobal0 : [0..N] init 0;
+
+    set1 : list [];
+    lenGlobal1 : [0..N] init 0;
+
+    set2 : list [];
+    lenGlobal2 : [0..N] init 0;
+
+    set3 : list [];
+    lenGlobal3 : [0..N] init 0;
+
+    set4 : list [];
+    lenGlobal4 : [0..N] init 0;
+
+    set5 : list [];
+    lenGlobal5 : [0..N] init 0;
+
+    set6 : list [];
+    lenGlobal6 : [0..N] init 0;
+
+    set7 : list [];
+    lenGlobal7 : [0..N] init 0;
+
+    set8 : list [];
+    lenGlobal8 : [0..N] init 0;
+
+    set9 : list [];
+    lenGlobal9 : [0..N] init 0;
+
+    set10 : list [];
+    lenGlobal10 : [0..N] init 0;
+
+    set11 : list [];
+    lenGlobal11 : [0..N] init 0;
+
+    set12 : list [];
+    lenGlobal12 : [0..N] init 0;
+
+    [addBlock0] (M0_STATE=Winner)  -> r : (set1'=addBlockSet(set1,b0))&(set6'=addBlockSet(set6,b0))&(set9'=addBlockSet(set9,b0))&(set2'=addBlockSet(set2,b0));
+    [extractBlock0] (M0_STATE=Move) -> r : (set0'=removeBlock(set0,b0))&(set1'=addBlockSet(set1,b0))&(set6'=addBlockSet(set6,b0))&(set9'=addBlockSet(set9,b0))&(set2'=addBlockSet(set2,b0));
+
+    [addBlock1] (M1_STATE=Winner)  -> r : (set3'=addBlockSet(set3,b1))&(set8'=addBlockSet(set8,b1))&(set11'=addBlockSet(set11,b1))&(set4'=addBlockSet(set4,b1));
+    [extractBlock1] (M1_STATE=Move) -> r : (set1'=removeBlock(set1,b1))&(set3'=addBlockSet(set3,b1))&(set8'=addBlockSet(set8,b1))&(set11'=addBlockSet(set11,b1))&(set4'=addBlockSet(set4,b1));
+
+    [addBlock2] (M2_STATE=Winner)  -> r : (set0'=addBlockSet(set0,b2))&(set4'=addBlockSet(set4,b2))&(set5'=addBlockSet(set5,b2))&(set7'=addBlockSet(set7,b2));
+    [extractBlock2] (M2_STATE=Move) -> r : (set2'=removeBlock(set2,b2))&(set0'=addBlockSet(set0,b2))&(set4'=addBlockSet(set4,b2))&(set5'=addBlockSet(set5,b2))&(set7'=addBlockSet(set7,b2));
+
+    [addBlock3] (M3_STATE=Winner)  -> r : (set2'=addBlockSet(set2,b3))&(set6'=addBlockSet(set6,b3))&(set7'=addBlockSet(set7,b3))&(set10'=addBlockSet(set10,b3));
+    [extractBlock3] (M3_STATE=Move) -> r : (set3'=removeBlock(set3,b3))&(set2'=addBlockSet(set2,b3))&(set6'=addBlockSet(set6,b3))&(set7'=addBlockSet(set7,b3))&(set10'=addBlockSet(set10,b3));
+
+    [addBlock4] (M4_STATE=Winner)  -> r : (set1'=addBlockSet(set1,b4))&(set5'=addBlockSet(set5,b4))&(set9'=addBlockSet(set9,b4))&(set6'=addBlockSet(set6,b4));
+    [extractBlock4] (M4_STATE=Move) -> r : (set4'=removeBlock(set4,b4))&(set1'=addBlockSet(set1,b4))&(set5'=addBlockSet(set5,b4))&(set9'=addBlockSet(set9,b4))&(set6'=addBlockSet(set6,b4));
+
+    [addBlock5] (M5_STATE=Winner)  -> r : (set0'=addBlockSet(set0,b5))&(set3'=addBlockSet(set3,b5))&(set10'=addBlockSet(set10,b5))&(set6'=addBlockSet(set6,b5));
+    [extractBlock5] (M5_STATE=Move) -> r : (set5'=removeBlock(set5,b5))&(set0'=addBlockSet(set0,b5))&(set3'=addBlockSet(set3,b5))&(set10'=addBlockSet(set10,b5))&(set6'=addBlockSet(set6,b5));
+
+    [addBlock6] (M6_STATE=Winner)  -> r : (set4'=addBlockSet(set4,b6))&(set8'=addBlockSet(set8,b6))&(set9'=addBlockSet(set9,b6))&(set1'=addBlockSet(set1,b6));
+    [extractBlock6] (M6_STATE=Move) -> r : (set6'=removeBlock(set6,b6))&(set4'=addBlockSet(set4,b6))&(set8'=addBlockSet(set8,b6))&(set9'=addBlockSet(set9,b6))&(set1'=addBlockSet(set1,b6));
+
+    [addBlock7] (M7_STATE=Winner)  -> r : (set2'=addBlockSet(set2,b7))&(set4'=addBlockSet(set4,b7))&(set12'=addBlockSet(set12,b7))&(set5'=addBlockSet(set5,b7));
+    [extractBlock7] (M7_STATE=Move) -> r : (set7'=removeBlock(set7,b7))&(set2'=addBlockSet(set2,b7))&(set4'=addBlockSet(set4,b7))&(set12'=addBlockSet(set12,b7))&(set5'=addBlockSet(set5,b7));
+
+    [addBlock8] (M8_STATE=Winner)  -> r : (set0'=addBlockSet(set0,b8))&(set3'=addBlockSet(set3,b8))&(set11'=addBlockSet(set11,b8))&(set6'=addBlockSet(set6,b8));
+    [extractBlock8] (M8_STATE=Move) -> r : (set8'=removeBlock(set8,b8))&(set0'=addBlockSet(set0,b8))&(set3'=addBlockSet(set3,b8))&(set11'=addBlockSet(set11,b8))&(set6'=addBlockSet(set6,b8));
+
+    [addBlock9] (M9_STATE=Winner)  -> r : (set1'=addBlockSet(set1,b9))&(set2'=addBlockSet(set2,b9))&(set10'=addBlockSet(set10,b9))&(set7'=addBlockSet(set7,b9));
+    [extractBlock9] (M9_STATE=Move) -> r : (set9'=removeBlock(set9,b9))&(set1'=addBlockSet(set1,b9))&(set2'=addBlockSet(set2,b9))&(set10'=addBlockSet(set10,b9))&(set7'=addBlockSet(set7,b9));
+
+    [addBlock10] (M10_STATE=Winner)  -> r : (set0'=addBlockSet(set0,b10))&(set1'=addBlockSet(set1,b10))&(set6'=addBlockSet(set6,b10))&(set11'=addBlockSet(set11,b10));
+    [extractBlock10] (M10_STATE=Move) -> r : (set10'=removeBlock(set10,b10))&(set0'=addBlockSet(set0,b10))&(set1'=addBlockSet(set1,b10))&(set6'=addBlockSet(set6,b10))&(set11'=addBlockSet(set11,b10));
+
+    [addBlock11] (M11_STATE=Winner)  -> r :(set5'=addBlockSet(set5,b11))&(set7'=addBlockSet(set7,b11))&(set9'=addBlockSet(set9,b11))&(set0'=addBlockSet(set0,b11));
+    [extractBlock11] (M11_STATE=Move) -> r : (set11'=removeBlock(set11,b11))&(set5'=addBlockSet(set5,b11))&(set7'=addBlockSet(set7,b11))&(set9'=addBlockSet(set9,b11))&(set0'=addBlockSet(set0,b11));
+
+    [addBlock12] (M12_STATE=Winner)  -> r :  (set3'=addBlockSet(set3,b12))&(set8'=addBlockSet(set8,b12))&(set10'=addBlockSet(set10,b12))&(set5'=addBlockSet(set5,b12));
+    [extractBlock12] (M12_STATE=Move) -> r : (set12'=removeBlock(set12,b12))&(set3'=addBlockSet(set3,b12))&(set8'=addBlockSet(set8,b12))&(set10'=addBlockSet(set10,b12))&(set5'=addBlockSet(set5,b12));
+
+endmodule
+
+label "someJustified" = justified0 = true | justified1 = true | justified2 = true | justified3 = true | justified4 = true | justified5 = true | justified6 = true | justified7 = true | justified8 = true | justified9 = true | justified10 = true | justified11 = true | justified12 = true;
