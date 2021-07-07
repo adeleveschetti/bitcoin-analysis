@@ -6,12 +6,6 @@ const double rMw ; // delay blocchi
 const epochs;
 const double T=epochs*EpochSize*(1/p);
 
-
-// 14 s per blocco
-// 12 s slot
-// 32 slot/epoca -> 384 s
-// epoch_vote_period : 64 epoche -> 13056 s
-// delay : 12.6 s (Bitcoin)
 const int time;
 const double mR = 1/time; // rate creazione blocco
 const double lR = 1-mR;
