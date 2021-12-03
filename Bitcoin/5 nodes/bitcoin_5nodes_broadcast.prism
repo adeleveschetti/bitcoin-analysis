@@ -210,9 +210,9 @@ module Network
 	[removeBlock1] (M1_STATE=Lost) -> 1 : (set1'=set1-b1)&(len1'=len1-1);
 	[addBlock2] (M2_STATE=Winner)   -> rb : (set'=set+b2)&(set1'=set1+b2)&(set3'=set3+b2)&(set4'=set4+b2)&(len3'=len3+1)&(len4'=len4+1)&(len1'=len1+1)&(len'=len+1);
 	[removeBlock2] (M2_STATE=Lost) -> 1 : (set2'=set2-b2)&(len2'=len2-1);
-	[addBlock3] (M3_STATE=Winner)   -> rb : (set'=set+b3)&(set1'=bag1+b3)&(set2'=set3+b3)&(set4'=set4+b3)&(len2'=len3+1)&(len4'=len4+1)&(len1'=len1+1)&(len'=len+1);
+	[addBlock3] (M3_STATE=Winner)   -> rb : (set'=set+b3)&(set1'=set+b3)&(set2'=set3+b3)&(set4'=set4+b3)&(len2'=len3+1)&(len4'=len4+1)&(len1'=len1+1)&(len'=len+1);
 	[removeBlock3] (M3_STATE=Lost) -> 1 : (set3'=set3-b3)&(len3'=len3-1);
-	[addBlock4] (M4_STATE=Winner)   -> rb : (set'=set+b4)&(set1'=bag1+b4)&(set3'=set3+b4)&(set2'=set4+b4)&(len3'=len3+1)&(len2'=len2+1)&(len1'=len1+1)&(len'=len+1);
+	[addBlock4] (M4_STATE=Winner)   -> rb : (set'=set+b4)&(set1'=set1+b4)&(set3'=set3+b4)&(set2'=set4+b4)&(len3'=len3+1)&(len2'=len2+1)&(len1'=len1+1)&(len'=len+1);
 	[removeBlock4] (M4_STATE=Lost) -> 1 : (set4'=set4-b4)&(len4'=len4-1);
 
 endmodule
