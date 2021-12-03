@@ -189,9 +189,9 @@ module M4
 endmodule
 
 
-module Global
+module Network
 
-	Global_STATE : [0..2] init 0;
+	Network_STATE : [0..2] init 0;
 
 	set : list [];
 	set1 : list [];
