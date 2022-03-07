@@ -70,124 +70,101 @@ module Hasher4
 
 endmodule
 
+
 module M
 
-	M_STATE : [Mine..Add] init Mine;
+	M_STATE : [Mine..Move] init Mine;
 	b : block {m,0;genesis,0};
 	B : blockchain [{genesis,0;genesis,0}];
 	c : [0..N] init 0;
 	setMiner : list [];
-	lenB : [0..N] init 0; // length of the set "setMiner"
-	tmp : [0..1] init 0;
-  canAdd : [0..1] init 0; // auxiliary variable which stores if the block can be added (1) or not (0)
 
-	[win] (M_STATE = Mine) -> hR : (M_STATE'=Winner)&(b'=B+c)&(c'=c+1);
-  [lose] (M_STATE = Mine) -> hR : (M_STATE'=Lost);
-	[addBlock] (M_STATE = Winner) -> 1 : (B'=B+b)&(M_STATE'=Mine);
-	[] (M_STATE = Lost)&(len>0)-> 1 : (b'=b+set)&(M_STATE'=Move);
-	[] (M_STATE = Lost)&(lenB>0)   ->  1 : (M_STATE'=Add)&(b'=b+setMiner);
-  [] (M_STATE = Lost)&(len=0)   ->  1 : (M_STATE'=Mine);
-  [removeBlock] (M_STATE=Move) -> 1 : (setMiner'=setMiner+b)&(lenB'=lenB+1)&(M_STATE'=Mine);
-	[] (M_STATE=Add) -> 1 : (canAdd'=b+B)&(tmp'=1);
-	[] (M_STATE=Add)&(tmp=1)&(canAdd=1) -> 1 : (B'=B+b)&(setMiner'=setMiner-b)&(M_STATE'=Mine)&(tmp'=0)&(lenB'=lenB-1);
-	[] (M_STATE=Add)&(tmp=1)&(canAdd=0) -> 1 : (tmp'=0)&(M_STATE'=Lost);
+	[win] (M_STATE = Mine) -> hR : (M_STATE'=Winner)&(b'=createB(b,B,c))&(c'=c+1);
+  	[lose] (M_STATE = Mine) -> hR : (M_STATE'=Lost);
+	[addBlock] (M_STATE = Winner) -> 1 : (B'=addBlock(B,b))&(M_STATE'=Mine);
+	[] (M_STATE = Lost)&!isEmpty(set)-> 1 : (b'=extractBlock(set))&(M_STATE'=Move);
+	[] (M_STATE = Lost)&!isEmpty(setMiner)   ->  1 : (M_STATE'=Add)&(b'=extractBlock(setMiner));
+  	[] (M_STATE = Lost)&isEmpty(set)&isEmpty(setMiner)   ->  1 : (M_STATE'=Mine);
+  	[removeBlock] (M_STATE=Move) -> 1 : (setMiner'=addBlockSet(setMiner,b))&(M_STATE'=Mine);
+	[] (M_STATE=Add)&(canBeInserted(B,b)) -> 1 : (B'=addBlock(B,b))&(setMiner'=removeBlock(setMiner,b))&(M_STATE'=Mine);
+	[] (M_STATE=Add)&(!canBeInserted(B,b)) -> 1 : (M_STATE'=Lost);
 endmodule
 
 module M1
 
-	M1_STATE : [Mine..Add] init Mine;
+	M1_STATE : [Mine..Move] init Mine;
 	b1 : block {m1,0;genesis,0};
 	B1 : blockchain [{genesis,0;genesis,0}];
 	c1 : [0..N] init 0;
 	setMiner1 : list [];
-	lenB1 : [0..N] init 0; // length of the set "setMiner"
-	tmp1 : [0..1] init 0;
-  canAdd1 : [0..1] init 0; // auxiliary variable which stores if the block can be added (1) or not (0)
 
-	[win1] (M1_STATE = Mine) -> hR1 : (M1_STATE'=Winner)&(b1'=B1+c1)&(c1'=c1+1);
-  [lose1] (M1_STATE = Mine) -> hR1 : (M1_STATE'=Lost);
-	[addBlock1] (M1_STATE = Winner) -> 1 : (B1'=B1+b1)&(M1_STATE'=Mine);
-	[] (M1_STATE = Lost)&(len1>0)-> 1 : (b1'=b1+set1)&(M1_STATE'=Move);
-	[] (M1_STATE = Lost)&(lenB1>0)   ->  1 : (M1_STATE'=Add)&(b1'=b1+setMiner1);
-  [] (M1_STATE = Lost)&(len1=0)   ->  1 : (M1_STATE'=Mine);
-  [removeBlock1] (M1_STATE=Move) -> 1 : (setMiner1'=setMiner1+b1)&(lenB1'=lenB1+1)&(M1_STATE'=Mine);
-	[] (M1_STATE=Add) -> 1 : (canAdd1'=b1+B1)&(tmp1'=1);
-	[] (M1_STATE=Add)&(tmp1=1)&(canAdd1=1) -> 1 : (B1'=B1+b1)&(setMiner1'=setMiner1-b1)&(M1_STATE'=Mine)&(tmp1'=0)&(lenB1'=lenB1-1);
-	[] (M1_STATE=Add)&(tmp1=1)&(canAdd1=0) -> 1 : (tmp1'=0)&(M1_STATE'=Lost);
+	[win1] (M1_STATE = Mine) -> hR1 : (M1_STATE'=Winner)&(b1'=createB(b1,B1,c1))&(c1'=c1+1);
+  	[lose1] (M1_STATE = Mine) -> hR1 : (M1_STATE'=Lost);
+	[addBlock1] (M1_STATE = Winner) -> 1 : (B1'=addBlock(B1,b1))&(M1_STATE'=Mine);
+	[] (M1_STATE = Lost)&!isEmpty(set1)-> 1 : (b1'=extractBlock(set1))&(M1_STATE'=Move);
+	[] (M1_STATE = Lost)&!isEmpty(setMiner1)   ->  1 : (M1_STATE'=Add)&(b1'=extractBlock(setMiner1));
+  	[] (M1_STATE = Lost)&isEmpty(set1)&isEmpty(setMiner1)   ->  1 : (M1_STATE'=Mine);
+  	[removeBlock1] (M1_STATE=Move) -> 1 : (setMiner1'=addBlockSet(setMiner1,b1))&(M1_STATE'=Mine);
+	[] (M1_STATE=Add)&(canBeInserted(B1,b1)) -> 1 : (B1'=addBlock(B1,b1))&(setMiner1'=removeBlock(setMiner1,b1))&(M1_STATE'=Mine);
+	[] (M1_STATE=Add)&(!canBeInserted(B1,b1)) -> 1 : (M1_STATE'=Lost);
 endmodule
-
 
 module M2
 
-	M2_STATE : [Mine..Add] init Mine;
+	M2_STATE : [Mine..Move] init Mine;
 	b2 : block {m2,0;genesis,0};
 	B2 : blockchain [{genesis,0;genesis,0}];
 	c2 : [0..N] init 0;
 	setMiner2 : list [];
-	lenB2 : [0..N] init 0; // length of the set "setMiner"
-	tmp2 : [0..1] init 0;
-  canAdd2 : [0..1] init 0; // auxiliary variable which stores if the block can be added (1) or not (0)
 
-	[win2] (M2_STATE = Mine) -> hR2 : (M2_STATE'=Winner)&(b2'=B2+c2)&(c2'=c2+1);
-  [lose2] (M2_STATE = Mine) -> hR2 : (M2_STATE'=Lost);
-	[addBlock2] (M2_STATE = Winner) -> 1 : (B2'=B2+b2)&(M2_STATE'=Mine);
-	[] (M2_STATE = Lost)&(len2>0)-> 1 : (b2'=b2+set2)&(M2_STATE'=Move);
-	[] (M2_STATE = Lost)&(lenB2>0)   ->  1 : (M2_STATE'=Add)&(b2'=b2+setMiner2);
-  [] (M2_STATE = Lost)&(len2=0)   ->  1 : (M2_STATE'=Mine);
-  [removeBlock2] (M2_STATE=Move) -> 1 : (setMiner2'=setMiner2+b2)&(lenB2'=lenB2+1)&(M2_STATE'=Mine);
-	[] (M2_STATE=Add) -> 1 : (canAdd2'=b2+B2)&(tmp2'=1);
-	[] (M2_STATE=Add)&(tmp2=1)&(canAdd2=1) -> 1 : (B2'=B2+b2)&(setMiner2'=setMiner2-b2)&(M2_STATE'=Mine)&(tmp2'=0)&(lenB2'=lenB2-1);
-	[] (M2_STATE=Add)&(tmp2=1)&(canAdd2=0) -> 1 : (tmp2'=0)&(M2_STATE'=Lost);
+	[win2] (M2_STATE = Mine) -> hR2 : (M2_STATE'=Winner)&(b2'=createB(b2,B2,c2))&(c2'=c2+1);
+  	[lose2] (M2_STATE = Mine) -> hR2 : (M2_STATE'=Lost);
+	[addBlock2] (M2_STATE = Winner) -> 1 : (B2'=addBlock(B2,b2))&(M2_STATE'=Mine);
+	[] (M2_STATE = Lost)&!isEmpty(set2)-> 1 : (b2'=extractBlock(set2))&(M2_STATE'=Move);
+	[] (M2_STATE = Lost)&!isEmpty(setMiner2)   ->  1 : (M2_STATE'=Add)&(b2'=extractBlock(setMiner2));
+  	[] (M2_STATE = Lost)&isEmpty(set2)&isEmpty(setMiner2)   ->  1 : (M2_STATE'=Mine);
+  	[removeBlock2] (M2_STATE=Move) -> 1 : (setMiner2'=addBlockSet(setMiner2,b2))&(M2_STATE'=Mine);
+	[] (M2_STATE=Add)&(canBeInserted(B2,b2)) -> 1 : (B2'=addBlock(B2,b2))&(setMiner2'=removeBlock(setMiner2,b2))&(M2_STATE'=Mine);
+	[] (M2_STATE=Add)&(!canBeInserted(B2,b2)) -> 1 : (M2_STATE'=Lost);
 endmodule
-
 
 module M3
 
-	M3_STATE : [Mine..Add] init Mine;
+	M3_STATE : [Mine..Move] init Mine;
 	b3 : block {m3,0;genesis,0};
 	B3 : blockchain [{genesis,0;genesis,0}];
 	c3 : [0..N] init 0;
 	setMiner3 : list [];
-	lenB3 : [0..N] init 0; // length of the set "setMiner"
-	tmp3 : [0..1] init 0;
-  canAdd3 : [0..1] init 0; // auxiliary variable which stores if the block can be added (1) or not (0)
 
-	[win3] (M3_STATE = Mine) -> hR3 : (M3_STATE'=Winner)&(b3'=B3+c3)&(c3'=c3+1);
-  [lose3] (M3_STATE = Mine) -> hR3 : (M3_STATE'=Lost);
-	[addBlock3] (M3_STATE = Winner) -> 1 : (B3'=B3+b3)&(M3_STATE'=Mine);
-	[] (M3_STATE = Lost)&(len3>0)-> 1 : (b3'=b3+set3)&(M3_STATE'=Move);
-	[] (M3_STATE = Lost)&(lenB3>0)   ->  1 : (M3_STATE'=Add)&(b3'=b3+setMiner3);
-  [] (M3_STATE = Lost)&(len3=0)   ->  1 : (M3_STATE'=Mine);
-  [removeBlock3] (M3_STATE=Move) -> 1 : (setMiner3'=setMiner3+b3)&(lenB3'=lenB3+1)&(M3_STATE'=Mine);
-	[] (M3_STATE=Add) -> 1 : (canAdd3'=b3+B3)&(tmp3'=1);
-	[] (M3_STATE=Add)&(tmp3=1)&(canAdd3=1) -> 1 : (B3'=B3+b3)&(setMiner3'=setMiner3-b3)&(M3_STATE'=Mine)&(tmp3'=0)&(lenB3'=lenB3-1);
-	[] (M3_STATE=Add)&(tmp3=1)&(canAdd3=0) -> 1 : (tmp3'=0)&(M3_STATE'=Lost);
+	[win3] (M3_STATE = Mine) -> hR3 : (M3_STATE'=Winner)&(b3'=createB(b3,B3,c3))&(c3'=c3+1);
+  	[lose3] (M3_STATE = Mine) -> hR3 : (M3_STATE'=Lost);
+	[addBlock3] (M3_STATE = Winner) -> 1 : (B3'=addBlock(B3,b3))&(M3_STATE'=Mine);
+	[] (M3_STATE = Lost)&!isEmpty(set3)-> 1 : (b3'=extractBlock(set3))&(M3_STATE'=Move);
+	[] (M3_STATE = Lost)&!isEmpty(setMiner3)   ->  1 : (M3_STATE'=Add)&(b3'=extractBlock(setMiner3));
+  	[] (M3_STATE = Lost)&isEmpty(set3)&isEmpty(setMiner3)   ->  1 : (M3_STATE'=Mine);
+  	[removeBlock3] (M3_STATE=Move) -> 1 : (setMiner3'=addBlockSet(setMiner3,b3))&(M3_STATE'=Mine);
+	[] (M3_STATE=Add)&(canBeInserted(B3,b3)) -> 1 : (B3'=addBlock(B3,b3))&(setMiner3'=removeBlock(setMiner3,b3))&(M3_STATE'=Mine);
+	[] (M3_STATE=Add)&(!canBeInserted(B3,b3)) -> 1 : (M3_STATE'=Lost);
 endmodule
-
 
 module M4
 
-	M4_STATE : [Mine..Add] init Mine;
+	M4_STATE : [Mine..Move] init Mine;
 	b4 : block {m4,0;genesis,0};
 	B4 : blockchain [{genesis,0;genesis,0}];
 	c4 : [0..N] init 0;
 	setMiner4 : list [];
-	lenB4 : [0..N] init 0; // length of the set "setMiner"
-	tmp4 : [0..1] init 0;
-  canAdd4 : [0..1] init 0; // auxiliary variable which stores if the block can be added (1) or not (0)
 
-	[win4] (M4_STATE = Mine) -> hR4 : (M4_STATE'=Winner)&(b4'=B4+c4)&(c4'=c4+1);
-  [lose4] (M4_STATE = Mine) -> hR4 : (M4_STATE'=Lost);
-	[addBlock4] (M4_STATE = Winner) -> 1 : (B4'=B4+b4)&(M4_STATE'=Mine);
-	[] (M4_STATE = Lost)&(len4>0)-> 1 : (b4'=b4+set4)&(M4_STATE'=Move);
-	[] (M4_STATE = Lost)&(lenB4>0)   ->  1 : (M4_STATE'=Add)&(b4'=b4+setMiner4);
-  [] (M4_STATE = Lost)&(len4=0)   ->  1 : (M4_STATE'=Mine);
-  [removeBlock4] (M4_STATE=Move) -> 1 : (setMiner4'=setMiner4+b4)&(lenB4'=lenB4+1)&(M4_STATE'=Mine);
-	[] (M4_STATE=Add) -> 1 : (canAdd4'=b4+B4)&(tmp4'=1);
-	[] (M4_STATE=Add)&(tmp4=1)&(canAdd4=1) -> 1 : (B4'=B4+b4)&(setMiner4'=setMiner4-b4)&(M4_STATE'=Mine)&(tmp4'=0)&(lenB4'=lenB4-1);
-	[] (M4_STATE=Add)&(tmp4=1)&(canAdd4=0) -> 1 : (tmp4'=0)&(M4_STATE'=Lost);
+	[win4] (M4_STATE = Mine) -> hR4 : (M4_STATE'=Winner)&(b4'=createB(b4,B4,c4))&(c4'=c4+1);
+  	[lose4] (M4_STATE = Mine) -> hR4 : (M4_STATE'=Lost);
+	[addBlock4] (M4_STATE = Winner) -> 1 : (B4'=addBlock(B4,b4))&(M4_STATE'=Mine);
+	[] (M4_STATE = Lost)&!isEmpty(set4)-> 1 : (b4'=extractBlock(set4))&(M4_STATE'=Move);
+	[] (M4_STATE = Lost)&!isEmpty(setMiner4)   ->  1 : (M4_STATE'=Add)&(b4'=extractBlock(setMiner4));
+  	[] (M4_STATE = Lost)&isEmpty(set4)&isEmpty(setMiner4)   ->  1 : (M4_STATE'=Mine);
+  	[removeBlock4] (M4_STATE=Move) -> 1 : (setMiner4'=addBlockSet(setMiner4,b4))&(M4_STATE'=Mine);
+	[] (M4_STATE=Add)&(canBeInserted(B4,b4)) -> 1 : (B4'=addBlock(B4,b4))&(setMiner4'=removeBlock(setMiner4,b4))&(M4_STATE'=Mine);
+	[] (M4_STATE=Add)&(!canBeInserted(B4,b4)) -> 1 : (M4_STATE'=Lost);
 endmodule
-
 
 module Network
 
@@ -204,16 +181,16 @@ module Network
 	len3 : [0..N] init 0;
 	len4 : [0..N] init 0;
 
-  [addBlock] (M_STATE=Winner)  -> rb : (set1'=set1+b)&(len1'=len1+1);
-	[removeBlock] (M_STATE=Lost) -> 1 : (set'=set-b)&(len'=len-1);
-	[addBlock1] (M1_STATE=Winner) -> rb : (set'=set+b1)&(set2'=set2+b1)&(len2'=len2+1)&(len'=len+1);
-	[removeBlock1] (M1_STATE=Lost) -> 1 : (set1'=set1-b1)&(len1'=len1-1);
-	[addBlock2] (M2_STATE=Winner)   -> rb : (set1'=set1+b2)&(set3'=set3+b2)&(len3'=len3+1)&(len1'=len1+1);
-	[removeBlock2] (M2_STATE=Lost) -> 1 : (set2'=set2-b2)&(len2'=len2-1);
-	[addBlock3] (M3_STATE=Winner)   -> rb : (set2'=set3+b3)&(set4'=set4+b3)&(len2'=len3+1)&(len4'=len4+1);
-	[removeBlock3] (M3_STATE=Lost) -> 1 : (set3'=set3-b3)&(len3'=len3-1);
-	[addBlock4] (M4_STATE=Winner)   -> rb : (set3'=set3+b4)&(len3'=len3+1);
-	[removeBlock4] (M4_STATE=Lost) -> 1 : (set4'=set4-b4)&(len4'=len4-1);
+  	[addBlock] (M_STATE=Winner)  -> rb : (set1'=addBlockSet(set1,b));
+	[removeBlock] (M_STATE=Lost) -> 1 : (set'=removeBlock(set,b));
+	[addBlock1] (M1_STATE=Winner) -> rb : (set'=addBlockSet(set,b1))&(set2'=addBlockSet(set2,b1));
+	[removeBlock1] (M1_STATE=Lost) -> 1 : (set1'=removeBlock(set1,b1));
+	[addBlock2] (M2_STATE=Winner)   -> rb : (set1'=addBlockSet(set1,b2))&(set3'=addBlockSet(set3,b2));
+	[removeBlock2] (M2_STATE=Lost) -> 1 : (set2'=removeBlock(set2,b2));
+	[addBlock3] (M3_STATE=Winner)   -> rb : (set2'=addBlockSet(set2,b3))&(set4'=addBlockSet(set4,b3));
+	[removeBlock3] (M3_STATE=Lost) -> 1 : (set3'=removeBlock(set3,b3));
+	[addBlock4] (M4_STATE=Winner)   -> rb : (set3'=addBlockSet(set3,b4));
+	[removeBlock4] (M4_STATE=Lost) -> 1 : (set4'=removeBlock(set4,b4));
 
 endmodule
 
@@ -225,13 +202,14 @@ module Global
 	diff3 : [0..N] init 0;
 	diff4 : [0..N] init 0;
 
-	[] (M_STATE = Add) -> 1 : (diff'=max(B-B1,B-B2,B-B3,B-B4));
-	[] (M1_STATE = Add) -> 1 : (diff1'=max(B1-B,B1-B2,B1-B3,B1-B4));
-	[] (M2_STATE = Add) -> 1 : (diff2'=max(B2-B1,B2-B,B2-B3,B2-B4));
-	[] (M3_STATE = Add) -> 1 : (diff3'=max(B3-B1,B3-B2,B3-B,B3-B4));
-	[] (M4_STATE = Add) -> 1 : (diff4'=max(B4-B1,B4-B2,B4-B3,B4-B));
+	[] (M_STATE = Add) -> 1 : (diff'=calculateFork(B,B1,B2,B3,B4));
+	[] (M1_STATE = Add) -> 1 : (diff1'=calculateFork(B,B1,B2,B3,B4));
+	[] (M2_STATE = Add) -> 1 : (diff2'=calculateFork(B,B1,B2,B3,B4));
+	[] (M3_STATE = Add) -> 1 : (diff3'=calculateFork(B,B1,B2,B3,B4));
+	[] (M4_STATE = Add) -> 1 : (diff4'=calculateFork(B,B1,B2,B3,B4));
 
 endmodule
+
 
 label "mining" = M_STATE = Winner | M1_STATE = Winner | M2_STATE = Winner |  M3_STATE = Winner |  M4_STATE = Winner;
 label "mining0" = M_STATE = Winner;
